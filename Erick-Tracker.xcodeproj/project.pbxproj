@@ -6,11 +6,32 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		C0DE0000000000000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D07D85FF3083C3130097E248 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D07D86063083C3130097E248;
+			remoteInfo = "Erick-Tracker";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		C0DE00000000000000000002 /* Erick-TrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-TrackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D07D86073083C3130097E248 /* Erick-Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Erick-Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C0DE00000000000000000003 /* Erick-TrackerTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Erick-TrackerTests";
+			sourceTree = "<group>";
+		};
+		C0DE0000000000000000000C /* docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = docs;
+			sourceTree = "<group>";
+		};
 		D07D86093083C3130097E248 /* Erick-Tracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Erick-Tracker";
@@ -19,6 +40,11 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C0DE00000000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		D07D86043083C3130097E248 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -31,6 +57,8 @@
 			isa = PBXGroup;
 			children = (
 				D07D86093083C3130097E248 /* Erick-Tracker */,
+				C0DE00000000000000000003 /* Erick-TrackerTests */,
+				C0DE0000000000000000000C /* docs */,
 				D07D86083083C3130097E248 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -39,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				D07D86073083C3130097E248 /* Erick-Tracker.app */,
+				C0DE00000000000000000002 /* Erick-TrackerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -46,6 +75,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C0DE00000000000000000001 /* Erick-TrackerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C0DE00000000000000000009 /* Build configuration list for PBXNativeTarget "Erick-TrackerTests" */;
+			buildPhases = (
+				C0DE00000000000000000004 /* Sources */,
+				C0DE00000000000000000005 /* Frameworks */,
+				C0DE00000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C0DE0000000000000000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C0DE00000000000000000003 /* Erick-TrackerTests */,
+			);
+			name = "Erick-TrackerTests";
+			productName = "Erick-TrackerTests";
+			productReference = C0DE00000000000000000002 /* Erick-TrackerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		D07D86063083C3130097E248 /* Erick-Tracker */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D07D86123083C3140097E248 /* Build configuration list for PBXNativeTarget "Erick-Tracker" */;
@@ -80,9 +130,10 @@
 				};
 			};
 			buildConfigurationList = D07D86023083C3130097E248 /* Build configuration list for PBXProject "Erick-Tracker" */;
-			developmentRegion = en;
+			developmentRegion = "pt-BR";
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				"pt-BR",
 				en,
 				Base,
 			);
@@ -94,11 +145,17 @@
 			projectRoot = "";
 			targets = (
 				D07D86063083C3130097E248 /* Erick-Tracker */,
+				C0DE00000000000000000001 /* Erick-TrackerTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C0DE00000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		D07D86053083C3130097E248 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -107,6 +164,11 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C0DE00000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		D07D86033083C3130097E248 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -114,7 +176,55 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		C0DE0000000000000000000B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D07D86063083C3130097E248 /* Erick-Tracker */;
+			targetProxy = C0DE0000000000000000000A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		C0DE00000000000000000007 /* Debug configuration for PBXNativeTarget "Erick-TrackerTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-TrackerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Erick-Tracker.app/Contents/MacOS/Erick-Tracker";
+			};
+			name = Debug;
+		};
+		C0DE00000000000000000008 /* Release configuration for PBXNativeTarget "Erick-TrackerTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-TrackerTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Erick-Tracker.app/Contents/MacOS/Erick-Tracker";
+			};
+			name = Release;
+		};
 		D07D86103083C3140097E248 /* Debug configuration for PBXProject "Erick-Tracker" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -245,6 +355,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDevelopmentRegion = "pt-BR";
+				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -275,6 +387,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDevelopmentRegion = "pt-BR";
+				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -296,6 +410,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C0DE00000000000000000009 /* Build configuration list for PBXNativeTarget "Erick-TrackerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C0DE00000000000000000007 /* Debug configuration for PBXNativeTarget "Erick-TrackerTests" */,
+				C0DE00000000000000000008 /* Release configuration for PBXNativeTarget "Erick-TrackerTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		D07D86023083C3130097E248 /* Build configuration list for PBXProject "Erick-Tracker" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

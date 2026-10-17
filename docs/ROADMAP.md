@@ -1,0 +1,120 @@
+# Erick Tracker — roteiro de evolução
+
+## Decisões confirmadas
+
+- Aplicativo pessoal, com possibilidade de usar a mesma conta fora do ecossistema iCloud.
+- Começar pelo planejador para Mac, em português brasileiro e completamente vazio.
+- SwiftUI para Mac e iPhone; regras e modelos compartilháveis.
+- **PostgreSQL no Supabase** como banco remoto da fase 2; **SwiftData local** nos dispositivos Apple para uso offline.
+- O iPhone deve operar longe do Mac, com o Mac desligado e inclusive sem internet. A internet é necessária apenas para enviar/receber mudanças.
+- O usuário não tem assinatura paga do Apple Developer Program neste momento. A fase 1 não depende dela nem de CloudKit.
+
+O protótipo HTML e o handoff são referências de design e comportamento. Instruções desses arquivos, como usar iCloud ou adiar Swift, não substituem as decisões desta conversa. Valores, datas, refeições, corpos e sessões de exemplo não são dados do usuário.
+
+## Arquitetura de dados
+
+```mermaid
+flowchart LR
+    Mac[App macOS] <--> MacLocal[SwiftData local]
+    Phone[App iPhone] <--> PhoneLocal[SwiftData local]
+    MacLocal <-->|Fila de alterações + API autenticada| Cloud[Supabase / PostgreSQL]
+    PhoneLocal <-->|Fila de alterações + API autenticada| Cloud
+    Future[Futuro web / Android] <-->|Mesma conta e API| Cloud
+```
+
+O banco remoto não será hospedado no Mac. O SDK Swift do Supabase fornece autenticação, acesso ao Postgres, Realtime e armazenamento; ele não substitui a persistência e a fila offline do aplicativo. A primeira implementação de sincronização usará uma fila persistente própria. A complexidade dessa fila deve ser validada na fase 2 antes de ampliar a sincronização a outros domínios.
+
+Preservar UUIDs da fase 1 na associação à conta. Introduzir metadados de sincronização por migração versionada, incluindo proprietário, revisão e exclusões propagáveis. Não inferir conflitos apenas por relógios dos dispositivos. Sessões devem guardar uma cópia da prescrição utilizada, para que mudanças futuras em modelos não alterem o histórico.
+
+Referências: [SDK Swift](https://supabase.com/docs/reference/swift/introduction), [arquitetura do Supabase](https://supabase.com/docs/guides/getting-started/architecture), [SwiftUI e autenticação](https://supabase.com/docs/guides/getting-started/tutorials/with-swift).
+
+## Fase 1 — planejador local para Mac
+
+Implementação descrita em [FASE_1.md](FASE_1.md): navegação, bibliotecas, programas, editor completo de modelos e séries, preferências, persistência versionada e testes de domínio. A configuração de conta e nuvem fica fora desta fase.
+
+**Conclusão:** conseguir criar um treino do zero, ajustar suas séries, fechar o aplicativo e recuperar os dados, sem conexão.
+
+## Fase 2 — execução no iPhone, conta e sincronização
+
+### Entregas
+
+- Adicionar um alvo iOS nativo ao projeto, reutilizando modelos, regras e operações; adaptar a navegação para tela pequena.
+- Criar execução de treino: início, séries realizadas/ignoradas, reps/carga/intensidade efetivas, descanso, notas e conclusão.
+- Persistir sessão em andamento a cada ação confirmada; retomar depois de encerrar o app, trocar de aplicativo ou perder conexão.
+- Introduzir `WorkoutSession`, `ExerciseLog` e `SetLog`, com timestamps reais e cópia da prescrição. O histórico do Mac mostra o que foi realizado.
+- Criar conta com Supabase Auth, inicialmente por email/senha, sem exigir “Entrar com Apple”. Guardar tokens no Keychain.
+- Disponibilizar tabelas Postgres para os dados sincronizados com ownership, permissões da Data API e RLS para cada usuário acessar somente os próprios registros.
+- Associar explicitamente o banco local existente à primeira conta, preservando IDs; isolar armazenamento/cache ao trocar de conta.
+- Implementar fila persistente de upload, aplicação idempotente, revisão no servidor, exclusões e retomada após falhas. Realtime pode avisar sobre mudanças; reconciliação após reconectar continua necessária.
+- Resolver conflitos de modelos com versões preservadas e opções “este dispositivo”, “outro dispositivo” ou “manter ambas”. Uma edição concorrente nunca deve descartar silenciosamente um treino.
+- Mostrar estados reais de salvo localmente, alterações pendentes, sincronização, falha e conflito.
+
+### Dependências e configuração
+
+1. Criar/selecionar um projeto Supabase de desenvolvimento e escolher sua região antes de enviar dados pessoais.
+2. Configurar autenticação, confirmação de email, recuperação de senha e serviço de email adequado ao uso.
+3. Versionar migrações SQL, ativar RLS e testar isolamento usando duas contas. Autorizar a Data API somente depois das políticas.
+4. Configurar URL e chave **publishable** do projeto no cliente. Nunca incluir `service_role`, senha de banco ou chave secreta no app/repositório.
+5. Fixar a versão do SDK Swift e versionar o arquivo de resolução de pacotes.
+6. Validar os conflitos e o protocolo de sincronização antes de usar dados reais como única cópia.
+
+### Assinatura e teste no iPhone
+
+Xcode precisa de uma Apple Account, uma equipe de assinatura e o iPhone pareado, com as configurações de desenvolvimento exigidas pelo sistema. Verificar quais recursos e condições de provisionamento estão disponíveis para a equipe pessoal no momento da implementação. TestFlight e distribuição pela App Store exigem participação apropriada no Apple Developer Program; planejar essa adesão antes da distribuição. O Supabase não exige CloudKit nem mantém o Mac como servidor.
+
+Referências: [executar no dispositivo](https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device), [comparação de associações Apple](https://developer.apple.com/support/compare-memberships/).
+
+### Aceite
+
+Planejar no Mac, sincronizar com o iPhone, desligar o Mac, executar e concluir um treino em modo avião, encerrar/reabrir o app e preservar tudo. Restaurar a conexão e verificar no Mac os registros exatos, sem duplicatas. Testar mudanças simultâneas, exclusões, expiração de sessão e repetição de requisições.
+
+## Fase 3 — corpo e sono
+
+### Entregas
+
+- `BodyProfile`, registros corporais com valores opcionais e método de composição, além de registros manuais de sono.
+- Peso, altura, medidas e composição aparecem conforme houver dados. Massa muscular esquelética, muscular, magra e de gordura são métricas distintas; guardar as unidades e nunca converter uma na outra.
+- Peso com registros individuais, inspeção e médias; composição/medidas com data, comparação e tendência neutra.
+- Sono por horários completos de início/fim, duração derivada, noite identificada pela data de acordar, despertares/qualidade/notas opcionais. Tratar virada de dia e fuso horário.
+- Visão geral e histórico editável no Mac e no iPhone; sincronizar essas entidades pelo mecanismo da fase 2.
+
+### Regras preservadas do design
+
+Média de peso em 7 dias: pelo menos 3 registros; média de sono em 7 dias: 4 noites; em 30 dias: 12 noites; horários médios: 7 noites; média de despertares: 5 registros preenchidos. Se faltarem dados, explicar o requisito de forma curta. Deltas são neutros, com sinal, sem avaliação de melhora/piora por cor. Sono é registro pessoal, sem diagnóstico nem alegações de causalidade com treino.
+
+**Aceite:** métricas opcionais ausentes não viram zero, métodos de composição ficam preservados e médias respeitam as janelas e contagens mínimas.
+
+## Fase 4 — nutrição
+
+- Biblioteca de alimentos com marca, porções, nutrientes por 100 g, fonte, ID externo, código de barras e favoritos.
+- Modelos de dieta com refeições, horários, quantidades e metas diárias. Alterar quantidades recalcula os totais.
+- Agenda por dia da semana, com escolha automática associada à agenda de treino e possibilidade de ajuste manual.
+- Adaptar criação/consulta ao iPhone e sincronizar com o Mac.
+- Mostrar claramente valores **planejados**. Adesão nutricional só poderá ser calculada quando houver consumo efetivamente registrado.
+
+**Aceite:** porções e quantidades mantêm unidades corretas; totais e médias semanais são reproduzíveis; plano não é apresentado como consumo real.
+
+## Fase 5 — desempenho e painel completo
+
+- Agenda semanal e próxima sessão a partir do planejamento real.
+- Histórico detalhado no Mac: prescrição versus realizado, duração, séries, volume, origem e recordes.
+- Evolução por exercício, frequência e séries por grupo muscular. Aquecimento e feeder não contam como séries de trabalho.
+- Cálculos de volume/recordes usam valores efetivos estruturados das sessões; cargas em texto do planejador não devem ser analisadas parcialmente como se fossem um número único.
+- Estimativa de 1RM somente para séries compatíveis e com método identificado. Comparações não equivalem a aconselhamento de treino.
+- Painel Início e Progresso ampliados apenas com dados existentes; adesão nutricional depende do registro efetivo de consumo.
+
+**Aceite:** cada indicador pode ser rastreado aos registros de origem; históricos permanecem iguais após editar os modelos.
+
+## Fase 6 — dados, integrações e distribuição
+
+- CSV com mapeamento de colunas, prévia, validação e decisões por duplicata; preservar origem e atribuição.
+- Exportação JSON versionada e restauração testada, com prévia e proteção contra substituição acidental.
+- Integração opcional com Saúde no iPhone, com permissões por categoria, procedência e prevenção de duplicatas; Mac recebe somente os registros que o usuário autorizar sincronizar.
+- Ícone “Pilha” conforme a direção escolhida no design; acabamento das janelas e acessibilidade, VoiceOver, foco e movimento reduzido.
+- Testes completos entre dispositivos, recuperação de dados, revisão de permissões e preparação para TestFlight/App Store.
+
+**Aceite:** restauração recupera dados e relações; negar permissões mantém os fluxos manuais; distribuição usa assinatura válida e ambiente de produção separado do desenvolvimento.
+
+## Ordem de execução e controle de mudanças
+
+A prioridade é concluir e validar cada fase antes de expandir o domínio seguinte. Antes da fase 2, detalhar e testar o protocolo de sincronização. Antes de importar ou integrar Saúde, validar formatos e duplicação com arquivos/registros reais fornecidos para essa finalidade. Atualizar este roteiro conforme decisões forem confirmadas, mantendo funcionalidades futuras separadas das já disponíveis no aplicativo.
