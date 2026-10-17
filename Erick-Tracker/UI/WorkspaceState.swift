@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 enum WorkspaceDestination: Hashable {
-    case home, workouts, exercises, program(UUID)
+    case home, workouts, exercises, history, program(UUID)
 }
 
 @MainActor @Observable

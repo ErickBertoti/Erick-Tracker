@@ -1,23 +1,14 @@
 import SwiftUI
 
-enum AppAppearance: String, CaseIterable, Identifiable {
-    case system, light, dark
-    var id: String { rawValue }
-    var label: String {
-        switch self { case .system: "Sistema"; case .light: "Claro"; case .dark: "Escuro" }
-    }
-    var colorScheme: ColorScheme? {
-        switch self { case .system: nil; case .light: .light; case .dark: .dark }
-    }
-}
-
 struct SettingsView: View {
+    var app: AppController?
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("defaultRestSeconds") private var restSeconds = 120
     @AppStorage("defaultIntensityScale") private var intensityScale = IntensityScale.rir.rawValue
     @AppStorage("defaultIntensityTarget") private var intensityTarget = 2.0
     var body: some View {
         TabView {
+            if let app { AccountView(app: app).tabItem { Label("Conta", systemImage: "person.crop.circle") } }
             Form {
                 Section("Erick Tracker") {
                     LabeledContent("Armazenamento", value: "Neste Mac")
@@ -56,7 +47,7 @@ struct SettingsView: View {
             .formStyle(.grouped)
             .tabItem { Label("Aparência", systemImage: "circle.lefthalf.filled") }
         }
-        .frame(width: 520, height: 340)
+        .frame(width: 560, height: app == nil ? 340 : 580)
         .environment(\.locale, WorkoutRules.locale)
         .preferredColorScheme(AppAppearance(rawValue: appearance)?.colorScheme)
     }

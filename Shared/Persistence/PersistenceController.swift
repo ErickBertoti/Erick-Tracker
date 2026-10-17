@@ -8,11 +8,14 @@ final class PersistenceController {
     var store: WorkoutStore?
     var startupError: String?
 
-    init() { open() }
+    private let url: URL?
+
+    init(url: URL? = nil) { self.url = url; open() }
 
     func open() {
         do {
-            let container = try Self.makeContainer()
+            if let url { try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true) }
+            let container = try Self.makeContainer(url: url)
             self.container = container
             store = WorkoutStore(context: container.mainContext)
             startupError = nil
@@ -22,7 +25,7 @@ final class PersistenceController {
     }
 
     static func makeContainer(inMemory: Bool = false, url: URL? = nil) throws -> ModelContainer {
-        let schema = Schema(versionedSchema: TrackerSchemaV1.self)
+        let schema = Schema(versionedSchema: TrackerSchemaV2.self)
         let configuration: ModelConfiguration
         if let url {
             configuration = ModelConfiguration("ErickTracker", schema: schema, url: url, cloudKitDatabase: .none)

@@ -7,6 +7,7 @@ struct CommitTextField: View {
     let commit: (String) -> Bool
     @State private var draft: String
     @FocusState private var focused: Bool
+    @Environment(\.scenePhase) private var scenePhase
 
     init(_ title: String, value: String, placeholder: String = "",
          commit: @escaping (String) -> Bool) {
@@ -25,6 +26,7 @@ struct CommitTextField: View {
             .onChange(of: focused) { _, hasFocus in if !hasFocus { save() } }
             .onChange(of: value) { _, newValue in if !focused { draft = newValue } }
             .onDisappear(perform: save)
+            .onChange(of: scenePhase) { _, phase in if phase != .active { save() } }
     }
 
     private func save() {
@@ -38,6 +40,7 @@ struct CommitNotes: View {
     let commit: (String) -> Void
     @State private var draft: String
     @FocusState private var focused: Bool
+    @Environment(\.scenePhase) private var scenePhase
 
     init(value: String, commit: @escaping (String) -> Void) {
         self.value = value; self.commit = commit; _draft = State(initialValue: value)
@@ -51,6 +54,7 @@ struct CommitNotes: View {
             .onChange(of: focused) { _, focus in if !focus { save() } }
             .onChange(of: value) { _, text in if !focused { draft = text } }
             .onDisappear(perform: save)
+            .onChange(of: scenePhase) { _, phase in if phase != .active { save() } }
     }
     private func save() { if draft != value { commit(draft) } }
 }
@@ -113,10 +117,10 @@ struct SaveStatusView: View {
             Image(systemName: store.saveError == nil ? "internaldrive" : "exclamationmark.triangle")
                 .foregroundStyle(store.saveError == nil ? Color.accentColor : .orange)
             VStack(alignment: .leading, spacing: 2) {
-                Text(store.saveError == nil ? "Salvo neste Mac" : "Alterações não salvas")
+                Text(store.saveError == nil ? "Salvo neste dispositivo" : "Alterações não salvas")
                     .font(.caption)
                 if store.saveError != nil {
-                    Button("Tentar novamente") { store.save() }.buttonStyle(.link).font(.caption)
+                    Button("Tentar novamente") { store.save() }.buttonStyle(.borderless).font(.caption)
                 } else {
                     Text("Disponível sem conexão").font(.caption2).foregroundStyle(.secondary)
                 }

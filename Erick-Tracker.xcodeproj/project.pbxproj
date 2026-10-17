@@ -6,7 +6,27 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04416AB763654520898FEE70 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = CA90C67A9FAE4A27B3C6438E /* Supabase */; };
+		8593E10664414FB0B24231C0 /* Erick-Tracker-LiveActivity.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FB6EDB1DDA98436DA0FA3555 /* Erick-Tracker-LiveActivity.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		BF0F6C105D97497C9906D251 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2CE8F11278EB4FEFB16F8351 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		7F72957F49F54456A3DE5F3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D07D85FF3083C3130097E248 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C031BA3470A84C47BC52B434;
+			remoteInfo = "Erick-Tracker-iOS";
+		};
+		9D72753A6F8D48AD85D793D7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D07D85FF3083C3130097E248 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C031BA3470A84C47BC52B434;
+			remoteInfo = "Erick-Tracker-iOS";
+		};
 		C0DE0000000000000000000A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D07D85FF3083C3130097E248 /* Project object */;
@@ -14,14 +34,62 @@
 			remoteGlobalIDString = D07D86063083C3130097E248;
 			remoteInfo = "Erick-Tracker";
 		};
+		FE16510E0D4B4A33BD24C3D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D07D85FF3083C3130097E248 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B43A957CA0D8452FB312A40D;
+			remoteInfo = "Erick-Tracker-LiveActivity";
+		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		11CB7CED753A40F79CC90095 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				8593E10664414FB0B24231C0 /* Erick-Tracker-LiveActivity.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		4CB7C2222B6541EFB1DCB8C6 /* Erick-Tracker-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-Tracker-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		97427754B17E495DA6664138 /* Erick-Tracker-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Erick-Tracker-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0D19857A20947EEA8CA269B /* Erick-Tracker-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-Tracker-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0DE00000000000000000002 /* Erick-TrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-TrackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D07D86073083C3130097E248 /* Erick-Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Erick-Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB6EDB1DDA98436DA0FA3555 /* Erick-Tracker-LiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Erick-Tracker-LiveActivity.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		043DA4A3E6AC4888A2772DCF /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		179648A37C744A5FB8EFE107 /* Erick-Tracker-iOSTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Erick-Tracker-iOSTests";
+			sourceTree = "<group>";
+		};
+		1E7DCFC689174BCF98D55BD0 /* SharedTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SharedTests;
+			sourceTree = "<group>";
+		};
+		3A5DF68BAC544A6D96EE7DCE /* ActivityShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ActivityShared;
+			sourceTree = "<group>";
+		};
+		91A98EF9FB954AFB8A1DE6F7 /* Erick-Tracker-LiveActivity */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Erick-Tracker-LiveActivity";
+			sourceTree = "<group>";
+		};
 		C0DE00000000000000000003 /* Erick-TrackerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Erick-TrackerTests";
@@ -37,10 +105,41 @@
 			path = "Erick-Tracker";
 			sourceTree = "<group>";
 		};
+		D7A11AA0C3FC44619B7ACD01 /* Erick-Tracker-iOS */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Erick-Tracker-iOS";
+			sourceTree = "<group>";
+		};
+		FCF16B06DE0D4DE1A31E5EC1 /* Erick-Tracker-iOSUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Erick-Tracker-iOSUITests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		71CD30349A1444F79D8B9249 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				BF0F6C105D97497C9906D251 /* Supabase in Frameworks */,
+			);
+		};
+		920FEE86D26D4E29BC2966B7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		BF2D9FE357B4487385316264 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		C0DE00000000000000000005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		CD50C3E2DAF645E3B0B5108A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -48,6 +147,7 @@
 		D07D86043083C3130097E248 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				04416AB763654520898FEE70 /* Supabase in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -59,6 +159,13 @@
 				D07D86093083C3130097E248 /* Erick-Tracker */,
 				C0DE00000000000000000003 /* Erick-TrackerTests */,
 				C0DE0000000000000000000C /* docs */,
+				043DA4A3E6AC4888A2772DCF /* Shared */,
+				D7A11AA0C3FC44619B7ACD01 /* Erick-Tracker-iOS */,
+				91A98EF9FB954AFB8A1DE6F7 /* Erick-Tracker-LiveActivity */,
+				3A5DF68BAC544A6D96EE7DCE /* ActivityShared */,
+				179648A37C744A5FB8EFE107 /* Erick-Tracker-iOSTests */,
+				1E7DCFC689174BCF98D55BD0 /* SharedTests */,
+				FCF16B06DE0D4DE1A31E5EC1 /* Erick-Tracker-iOSUITests */,
 				D07D86083083C3130097E248 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -68,6 +175,10 @@
 			children = (
 				D07D86073083C3130097E248 /* Erick-Tracker.app */,
 				C0DE00000000000000000002 /* Erick-TrackerTests.xctest */,
+				97427754B17E495DA6664138 /* Erick-Tracker-iOS.app */,
+				FB6EDB1DDA98436DA0FA3555 /* Erick-Tracker-LiveActivity.appex */,
+				4CB7C2222B6541EFB1DCB8C6 /* Erick-Tracker-iOSTests.xctest */,
+				C0D19857A20947EEA8CA269B /* Erick-Tracker-iOSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -75,6 +186,73 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2CC29D28EFF24DC08CC9117C /* Erick-Tracker-iOSUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F905C7B13FBC4B869BBEF0D6 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOSUITests" */;
+			buildPhases = (
+				A1099625BE1748BF81AFE4B6 /* Sources */,
+				BF2D9FE357B4487385316264 /* Frameworks */,
+				99F5A63548B449F6B84D6C87 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E8D30CF8E74B4DC0ABD87E2F /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				FCF16B06DE0D4DE1A31E5EC1 /* Erick-Tracker-iOSUITests */,
+			);
+			name = "Erick-Tracker-iOSUITests";
+			productName = "Erick-Tracker-iOSUITests";
+			productReference = C0D19857A20947EEA8CA269B /* Erick-Tracker-iOSUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		B43A957CA0D8452FB312A40D /* Erick-Tracker-LiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7EF3BFAB2B7E4F7E9F164EB2 /* Build configuration list for PBXNativeTarget "Erick-Tracker-LiveActivity" */;
+			buildPhases = (
+				B49E75A323F04470A36B4234 /* Sources */,
+				920FEE86D26D4E29BC2966B7 /* Frameworks */,
+				6F589F87467B4D76AD0CEDB1 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				3A5DF68BAC544A6D96EE7DCE /* ActivityShared */,
+				91A98EF9FB954AFB8A1DE6F7 /* Erick-Tracker-LiveActivity */,
+			);
+			name = "Erick-Tracker-LiveActivity";
+			productName = "Erick-Tracker-LiveActivity";
+			productReference = FB6EDB1DDA98436DA0FA3555 /* Erick-Tracker-LiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C031BA3470A84C47BC52B434 /* Erick-Tracker-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3E0AE33514804F469699D246 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOS" */;
+			buildPhases = (
+				3E68513EB9434B859941E032 /* Sources */,
+				71CD30349A1444F79D8B9249 /* Frameworks */,
+				299EA4C1155F44E69B18E6CA /* Resources */,
+				11CB7CED753A40F79CC90095 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B1870228F3C74C89886606FB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				043DA4A3E6AC4888A2772DCF /* Shared */,
+				3A5DF68BAC544A6D96EE7DCE /* ActivityShared */,
+				D7A11AA0C3FC44619B7ACD01 /* Erick-Tracker-iOS */,
+			);
+			name = "Erick-Tracker-iOS";
+			packageProductDependencies = (
+				2CE8F11278EB4FEFB16F8351 /* Supabase */,
+			);
+			productName = "Erick-Tracker-iOS";
+			productReference = 97427754B17E495DA6664138 /* Erick-Tracker-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		C0DE00000000000000000001 /* Erick-TrackerTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0DE00000000000000000009 /* Build configuration list for PBXNativeTarget "Erick-TrackerTests" */;
@@ -89,6 +267,7 @@
 				C0DE0000000000000000000B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				1E7DCFC689174BCF98D55BD0 /* SharedTests */,
 				C0DE00000000000000000003 /* Erick-TrackerTests */,
 			);
 			name = "Erick-TrackerTests";
@@ -107,12 +286,38 @@
 			buildRules = (
 			);
 			fileSystemSynchronizedGroups = (
+				043DA4A3E6AC4888A2772DCF /* Shared */,
 				D07D86093083C3130097E248 /* Erick-Tracker */,
 			);
 			name = "Erick-Tracker";
+			packageProductDependencies = (
+				CA90C67A9FAE4A27B3C6438E /* Supabase */,
+			);
 			productName = "Erick-Tracker";
 			productReference = D07D86073083C3130097E248 /* Erick-Tracker.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F6C27883A4AC493DA751D9D2 /* Erick-Tracker-iOSTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6DF03CD697F9436A829B6170 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOSTests" */;
+			buildPhases = (
+				F4AA645CBDE94F99A1F7820D /* Sources */,
+				CD50C3E2DAF645E3B0B5108A /* Frameworks */,
+				9CCC48CF8AD74BDAB0D7A4F4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CC4638FE61D54DB7915F7EB1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				179648A37C744A5FB8EFE107 /* Erick-Tracker-iOSTests */,
+				1E7DCFC689174BCF98D55BD0 /* SharedTests */,
+			);
+			name = "Erick-Tracker-iOSTests";
+			productName = "Erick-Tracker-iOSTests";
+			productReference = 4CB7C2222B6541EFB1DCB8C6 /* Erick-Tracker-iOSTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -139,6 +344,9 @@
 			);
 			mainGroup = D07D85FE3083C3130097E248;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				26B827C2FCB2472F84C7736B /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D07D86083083C3130097E248 /* Products */;
 			projectDirPath = "";
@@ -146,11 +354,35 @@
 			targets = (
 				D07D86063083C3130097E248 /* Erick-Tracker */,
 				C0DE00000000000000000001 /* Erick-TrackerTests */,
+				C031BA3470A84C47BC52B434 /* Erick-Tracker-iOS */,
+				B43A957CA0D8452FB312A40D /* Erick-Tracker-LiveActivity */,
+				F6C27883A4AC493DA751D9D2 /* Erick-Tracker-iOSTests */,
+				2CC29D28EFF24DC08CC9117C /* Erick-Tracker-iOSUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		299EA4C1155F44E69B18E6CA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		6F589F87467B4D76AD0CEDB1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		99F5A63548B449F6B84D6C87 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		9CCC48CF8AD74BDAB0D7A4F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		C0DE00000000000000000006 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -164,6 +396,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		3E68513EB9434B859941E032 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		A1099625BE1748BF81AFE4B6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		B49E75A323F04470A36B4234 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		C0DE00000000000000000004 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -174,17 +421,224 @@
 			files = (
 			);
 		};
+		F4AA645CBDE94F99A1F7820D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		B1870228F3C74C89886606FB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B43A957CA0D8452FB312A40D /* Erick-Tracker-LiveActivity */;
+			targetProxy = FE16510E0D4B4A33BD24C3D6 /* PBXContainerItemProxy */;
+		};
 		C0DE0000000000000000000B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D07D86063083C3130097E248 /* Erick-Tracker */;
 			targetProxy = C0DE0000000000000000000A /* PBXContainerItemProxy */;
 		};
+		CC4638FE61D54DB7915F7EB1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C031BA3470A84C47BC52B434 /* Erick-Tracker-iOS */;
+			targetProxy = 9D72753A6F8D48AD85D793D7 /* PBXContainerItemProxy */;
+		};
+		E8D30CF8E74B4DC0ABD87E2F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C031BA3470A84C47BC52B434 /* Erick-Tracker-iOS */;
+			targetProxy = 7F72957F49F54456A3DE5F3E /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0854C803814D43ABA6DDBDB5 /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOSTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Erick-Tracker-iOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Erick-Tracker-iOS";
+			};
+			name = Debug;
+		};
+		2606EBB28C5142269C4DA88A /* Release configuration for PBXNativeTarget "Erick-Tracker-iOS" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		68F0C8C28A6A475FA0E6F627 /* Release configuration for PBXNativeTarget "Erick-Tracker-iOSTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOSTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Erick-Tracker-iOS.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Erick-Tracker-iOS";
+			};
+			name = Release;
+		};
+		7C29421885BC4B1B83AADDC8 /* Debug configuration for PBXNativeTarget "Erick-Tracker-LiveActivity" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/LiveActivity-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOS.LiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		7DB18C724D49421783C40B2A /* Release configuration for PBXNativeTarget "Erick-Tracker-iOSUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = "Erick-Tracker-iOS";
+			};
+			name = Release;
+		};
+		850B8D7AC19F436A88486AE5 /* Release configuration for PBXNativeTarget "Erick-Tracker-LiveActivity" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/LiveActivity-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOS.LiveActivity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		BAA99F1F01C0490E9BC25223 /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOS" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/iOS-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
 		C0DE00000000000000000007 /* Debug configuration for PBXNativeTarget "Erick-TrackerTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -224,6 +678,27 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Erick-Tracker.app/Contents/MacOS/Erick-Tracker";
 			};
 			name = Release;
+		};
+		CB643D0B0F1D4EA1BCB5676E /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOSUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Erickbertoti.Erick-Tracker.iOSUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = "Erick-Tracker-iOS";
+			};
+			name = Debug;
 		};
 		D07D86103083C3140097E248 /* Debug configuration for PBXProject "Erick-Tracker" */ = {
 			isa = XCBuildConfiguration;
@@ -352,9 +827,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Mac-Info.plist";
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = "pt-BR";
 				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -384,9 +861,11 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Config/Mac-Info.plist";
 				INFOPLIST_KEY_CFBundleDevelopmentRegion = "pt-BR";
 				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -410,6 +889,30 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		3E0AE33514804F469699D246 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BAA99F1F01C0490E9BC25223 /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOS" */,
+				2606EBB28C5142269C4DA88A /* Release configuration for PBXNativeTarget "Erick-Tracker-iOS" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		6DF03CD697F9436A829B6170 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOSTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0854C803814D43ABA6DDBDB5 /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOSTests" */,
+				68F0C8C28A6A475FA0E6F627 /* Release configuration for PBXNativeTarget "Erick-Tracker-iOSTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		7EF3BFAB2B7E4F7E9F164EB2 /* Build configuration list for PBXNativeTarget "Erick-Tracker-LiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C29421885BC4B1B83AADDC8 /* Debug configuration for PBXNativeTarget "Erick-Tracker-LiveActivity" */,
+				850B8D7AC19F436A88486AE5 /* Release configuration for PBXNativeTarget "Erick-Tracker-LiveActivity" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		C0DE00000000000000000009 /* Build configuration list for PBXNativeTarget "Erick-TrackerTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -434,7 +937,39 @@
 			);
 			defaultConfigurationName = Release;
 		};
+		F905C7B13FBC4B869BBEF0D6 /* Build configuration list for PBXNativeTarget "Erick-Tracker-iOSUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB643D0B0F1D4EA1BCB5676E /* Debug configuration for PBXNativeTarget "Erick-Tracker-iOSUITests" */,
+				7DB18C724D49421783C40B2A /* Release configuration for PBXNativeTarget "Erick-Tracker-iOSUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		26B827C2FCB2472F84C7736B /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.55.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2CE8F11278EB4FEFB16F8351 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26B827C2FCB2472F84C7736B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		CA90C67A9FAE4A27B3C6438E /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 26B827C2FCB2472F84C7736B /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D07D85FF3083C3130097E248 /* Project object */;
 	validationLevel = 1;

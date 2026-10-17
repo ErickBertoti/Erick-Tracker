@@ -10,6 +10,7 @@ final class WorkoutStore {
     var saveError: String?
     var operationError: String?
     var lastSavedAt: Date?
+    @ObservationIgnored var onSave: (() -> Void)?
     private let saveContext: (ModelContext) throws -> Void
 
     init(context: ModelContext, saveContext: @escaping (ModelContext) throws -> Void = { try $0.save() }) {
@@ -21,9 +22,11 @@ final class WorkoutStore {
 
     @discardableResult func save() -> Bool {
         do {
+            try SyncJournal.capture(in: context)
             try saveContext(context)
             saveError = nil
             lastSavedAt = .now
+            onSave?()
             return true
         } catch {
             saveError = error.localizedDescription

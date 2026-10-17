@@ -3,6 +3,8 @@ import SwiftUI
 
 struct ContentView: View {
     @Bindable var store: WorkoutStore
+    var account: AppController?
+    @State private var showingAccount = false
     @Query(sort: \Program.position) private var programs: [Program]
     @Query(sort: \Exercise.name) private var exercises: [Exercise]
     @Query(sort: \WorkoutTemplate.updatedAt, order: .reverse) private var workouts: [WorkoutTemplate]
@@ -13,8 +15,8 @@ struct ContentView: View {
     @State private var pendingExerciseWorkoutID: UUID?
     @FocusState private var searchFocused: Bool
 
-    init(store: WorkoutStore, navigation: WorkspaceState? = nil) {
-        self.store = store
+    init(store: WorkoutStore, account: AppController? = nil, navigation: WorkspaceState? = nil) {
+        self.store = store; self.account = account
         _navigation = State(initialValue: navigation ?? WorkspaceState())
     }
 
@@ -33,6 +35,7 @@ struct ContentView: View {
         case .home: return "Início"
         case .workouts: return "Treinos"
         case .exercises: return "Exercícios"
+        case .history: return "Histórico"
         case .program: return selectedProgram?.name ?? "Treinos"
         }
     }
@@ -44,7 +47,7 @@ struct ContentView: View {
             detail
                 .navigationTitle(title)
                 .toolbar { toolbar }
-                .inspector(isPresented: Binding(get: { navigation.inspectorVisible && !isHome }, set: { navigation.inspectorVisible = $0 })) {
+                .inspector(isPresented: Binding(get: { navigation.inspectorVisible && !isHome && navigation.destination != .history }, set: { navigation.inspectorVisible = $0 })) {
                     inspector.inspectorColumnWidth(min: 260, ideal: 280, max: 340)
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -61,6 +64,10 @@ struct ContentView: View {
                     }
                 }
         }
+        .sheet(isPresented: $showingAccount) {
+            if let account { AccountView(app: account).frame(width: 580, height: 620) }
+        }
+        .onChange(of: account?.recoveryMode) { _, recovering in if recovering == true { showingAccount = true } }
         .navigationSplitViewStyle(.balanced)
         .frame(minWidth: 1024, minHeight: 700)
         .focusedSceneValue(\.trackerCommands, commandActions)
@@ -114,6 +121,7 @@ struct ContentView: View {
                 Label("Início", systemImage: "house").tag(WorkspaceDestination.home)
                 Label("Treinos", systemImage: "list.bullet.rectangle").tag(WorkspaceDestination.workouts)
                 Label("Exercícios", systemImage: "figure.strengthtraining.traditional").tag(WorkspaceDestination.exercises)
+                Label("Histórico", systemImage: "clock.arrow.circlepath").tag(WorkspaceDestination.history)
             }
             Section {
                 ForEach(programs) { program in
@@ -149,6 +157,8 @@ struct ContentView: View {
                 programCount: programs.count, newWorkout: { editorSheet = .workout(nil) },
                 newExercise: { editorSheet = .exercise(nil) }, newProgram: { editorSheet = .program(nil) },
                 openWorkout: { navigation.open($0) })
+        } else if navigation.destination == .history {
+            SessionHistoryView()
         } else {
             libraries
                 .searchable(text: $navigation.search, placement: .toolbar,
@@ -176,6 +186,10 @@ struct ContentView: View {
             }
         }
         ToolbarItemGroup(placement: .primaryAction) {
+            if let account {
+                Button { showingAccount = true } label: { Label(account.sync?.status ?? "Conta", systemImage: "person.crop.circle") }
+            }
+            if navigation.destination != .history {
             Button(action: primaryAction) { Label(primaryTitle, systemImage: "plus") }
                 .help(primaryTitle + " (⌘N)")
                 .popover(isPresented: $addingExercise) {
@@ -187,7 +201,8 @@ struct ContentView: View {
                         addingExercise = false; editorSheet = .exercise(nil)
                     }
                 }
-            if !isHome {
+            }
+            if !isHome && navigation.destination != .history {
                 Button { navigation.inspectorVisible.toggle() } label: { Label("Mostrar inspetor", systemImage: "sidebar.right") }
                     .help("Mostrar ou ocultar inspetor (⌥⌘I)")
             }
