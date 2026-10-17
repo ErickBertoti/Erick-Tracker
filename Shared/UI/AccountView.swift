@@ -10,7 +10,12 @@ struct AccountView: View {
     @State private var confirmSignOut = false
     var body: some View {
         Form {
-            if app.recoveryMode {
+            if !app.isCloudConfigured {
+                Section("Uso local") {
+                    Text("A sincronização não foi configurada nesta instalação. Seus dados locais continuam disponíveis.")
+                        .foregroundStyle(.secondary)
+                }
+            } else if app.recoveryMode {
                 Section("Nova senha") {
                     SecureField("Senha", text: $password).textContentType(.newPassword)
                     Button("Salvar nova senha") { Task { await app.updatePassword(password); password = "" } }

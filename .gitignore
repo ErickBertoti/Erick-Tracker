@@ -13,3 +13,17 @@ SourcePackages/checkouts/
 
 # Pacote de design do Claude Design, mantido só localmente
 workout-app-overview-and-body-metrics/
+
+# Personal environment, signing material and local operational notes
+Config/Local.xcconfig
+docs/LOCAL_OPERATIONS.md
+docs/evidencias-privadas/
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.mobileprovision
+*.store
+*.store-shm
+*.store-wal

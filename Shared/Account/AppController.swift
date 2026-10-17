@@ -5,17 +5,28 @@ import Supabase
 import Network
 
 nonisolated enum CloudConfiguration {
-    static let url = URL(string: "https://your-project.supabase.co")!
-    static let publishableKey = "sb_publishable_configure_locally"
+    struct Settings: Sendable {
+        let url: URL
+        let publishableKey: String
+    }
+    static let current = read(Bundle.main.infoDictionary ?? [:])
+    static func read(_ info: [String: Any]) -> Settings? {
+        guard let rawURL = info["SupabaseURL"] as? String,
+              let rawKey = info["SupabasePublishableKey"] as? String else { return nil }
+        let key = rawKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: rawURL.trimmingCharacters(in: .whitespacesAndNewlines)),
+              let host = url.host, !host.isEmpty, host != "your-project.supabase.co",
+              url.user == nil, url.password == nil, url.query == nil, url.fragment == nil,
+              url.scheme == "https" || (url.scheme == "http" && ["localhost", "127.0.0.1", "::1"].contains(host)),
+              key.hasPrefix("sb_publishable_"), key.count > "sb_publishable_".count else { return nil }
+        return Settings(url: url, publishableKey: key)
+    }
 }
 
 @MainActor @Observable final class AppController {
     static let redirectURL = URL(string: "ericktracker://auth/callback")!
-    let client = SupabaseClient(
-        supabaseURL: CloudConfiguration.url,
-        supabaseKey: CloudConfiguration.publishableKey,
-        options: .init(auth: .init(storage: KeychainLocalStorage(service: "ErickTracker.Auth"),
-            redirectToURL: redirectURL, emitLocalSessionAsInitialSession: true)))
+    let client: SupabaseClient?
+    var isCloudConfigured: Bool { client != nil }
     var persistence: PersistenceController
     var sync: SyncEngine?
     var sessions: SessionStore?
@@ -37,6 +48,11 @@ nonisolated enum CloudConfiguration {
     @ObservationIgnored private let monitor = NWPathMonitor()
 
     init() {
+        client = CloudConfiguration.current.map { configuration in
+            SupabaseClient(supabaseURL: configuration.url, supabaseKey: configuration.publishableKey,
+                options: .init(auth: .init(storage: KeychainLocalStorage(service: "ErickTracker.Auth"),
+                    redirectToURL: Self.redirectURL, emitLocalSessionAsInitialSession: true)))
+        }
         #if DEBUG
         if let id = UITestBootstrap.storeID {
             persistence = UITestBootstrap.makePersistence(id: id)
@@ -53,6 +69,11 @@ nonisolated enum CloudConfiguration {
             persistence = PersistenceController(url: Self.guestURL)
         }
         sessions = persistence.store.map(SessionStore.init)
+        guard let client else {
+            isRestoring = false
+            persistence.store?.onSave = { [weak self] in self?.onLocalSave?() }
+            return
+        }
         authTask = Task { [weak self, client] in
             for await (event, session) in client.auth.authStateChanges {
                 guard let self else { return }
@@ -89,8 +110,8 @@ nonisolated enum CloudConfiguration {
         else if UserDefaults.standard.string(forKey: "legacyClaimedBy") == nil, let legacy { persistence = legacy }
         else { persistence = PersistenceController(url: Self.guestURL) }
         sessions = persistence.store.map(SessionStore.init)
-        if let store = persistence.store, let id {
-            let engine = SyncEngine(store: store, transport: SupabaseTransport(client: client, ownerID: id))
+        if let store = persistence.store, let id, let client, let configuration = CloudConfiguration.current {
+            let engine = SyncEngine(store: store, transport: SupabaseTransport(client: client, ownerID: id, configuration: configuration))
             sync = engine
             store.onSave = { [weak self, weak engine] in engine?.schedule(); self?.onLocalSave?() }
             engine.schedule()
@@ -102,6 +123,7 @@ nonisolated enum CloudConfiguration {
     }
     func setActive(_ active: Bool) { sceneActive = active; if active { sync?.schedule(); onLocalSave?() } }
     func signIn(email: String, password: String, create: Bool) async {
+        guard let client else { authError = AccountFailure.notConfigured.localizedDescription; return }
         guard !isBusy else { return }; isBusy = true; authError = nil; authMessage = nil; defer { isBusy = false }
         do {
             if create {
@@ -111,6 +133,7 @@ nonisolated enum CloudConfiguration {
         } catch { authError = error.localizedDescription }
     }
     func resetPassword(email: String) async {
+        guard let client else { authError = AccountFailure.notConfigured.localizedDescription; return }
         isBusy = true; authError = nil; defer { isBusy = false }
         do {
             try await client.auth.resetPasswordForEmail(WorkoutRules.trimmed(email), redirectTo: Self.redirectURL)
@@ -118,6 +141,7 @@ nonisolated enum CloudConfiguration {
         } catch { authError = error.localizedDescription }
     }
     func updatePassword(_ password: String) async {
+        guard let client else { authError = AccountFailure.notConfigured.localizedDescription; return }
         isBusy = true; authError = nil; defer { isBusy = false }
         do {
             _ = try await client.auth.update(user: UserAttributes(password: password))
@@ -125,6 +149,7 @@ nonisolated enum CloudConfiguration {
         } catch { authError = error.localizedDescription }
     }
     func handle(_ url: URL) async {
+        guard let client else { return }
         guard url.scheme == "ericktracker", url.host == "auth" else { return }
         do { _ = try await client.auth.session(from: url) }
         catch { authError = error.localizedDescription }
@@ -132,7 +157,7 @@ nonisolated enum CloudConfiguration {
     func signOut() async {
         sync?.stop(); onSignOut?()
         // The SDK removes Keychain session data before attempting server revocation.
-        do { try await client.auth.signOut(scope: .local) }
+        do { try await client?.auth.signOut(scope: .local) }
         catch { authMessage = "Sessão encerrada neste aparelho. As alterações locais foram preservadas." }
         openAccount(nil, email: nil)
     }
@@ -166,20 +191,20 @@ nonisolated enum CloudConfiguration {
 @MainActor final class SupabaseTransport: CloudTransport {
     nonisolated struct Identity: Sendable { var userID: UUID; var accessToken: String }
     private let database: PostgrestClient
-    convenience init(client: SupabaseClient, ownerID: UUID) {
+    convenience init(client: SupabaseClient, ownerID: UUID, configuration: CloudConfiguration.Settings) {
         let auth = client.auth
-        self.init(ownerID: ownerID, identity: {
+        self.init(ownerID: ownerID, configuration: configuration, identity: {
             let session = try await auth.session
             return Identity(userID: session.user.id, accessToken: session.accessToken)
         })
     }
-    init(ownerID: UUID, identity: @escaping @Sendable () async throws -> Identity,
+    init(ownerID: UUID, configuration: CloudConfiguration.Settings, identity: @escaping @Sendable () async throws -> Identity,
          fetch: @escaping @Sendable (URLRequest) async throws -> (Data, URLResponse) = { try await URLSession.shared.data(for: $0) }) {
         // SupabaseClient's shared request adapter always injects its current user's
         // token. Bind this transport to one store owner so an in-flight request or
         // retry can never upload that store under a newly selected account.
-        database = PostgrestClient(url: CloudConfiguration.url.appending(path: "rest/v1"),
-            headers: ["apikey": CloudConfiguration.publishableKey], fetch: { request in
+        database = PostgrestClient(url: configuration.url.appending(path: "rest/v1"),
+            headers: ["apikey": configuration.publishableKey], fetch: { request in
                 let session = try await identity()
                 guard session.userID == ownerID else { throw AccountFailure.accountChanged }
                 var authorized = request
@@ -197,12 +222,13 @@ nonisolated enum CloudConfiguration {
     }
 }
 nonisolated enum AccountFailure: LocalizedError {
-    case saveFailed, collision, accountChanged
+    case saveFailed, collision, accountChanged, notConfigured
     var errorDescription: String? {
         switch self {
         case .saveFailed: "Não foi possível verificar a gravação. A cópia anterior continua preservada."
         case .collision: "Há dados diferentes com o mesmo identificador nesta conta. A vinculação foi interrompida sem substituir seus registros."
         case .accountChanged: "A conta mudou durante a sincronização. As alterações continuam preservadas na conta de origem."
+        case .notConfigured: "A sincronização não foi configurada nesta instalação. Seus dados locais continuam disponíveis."
         }
     }
 }

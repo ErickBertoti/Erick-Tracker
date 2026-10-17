@@ -60,6 +60,7 @@
 		97427754B17E495DA6664138 /* Erick-Tracker-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Erick-Tracker-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0D19857A20947EEA8CA269B /* Erick-Tracker-iOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-Tracker-iOSUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0DE00000000000000000002 /* Erick-TrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Erick-TrackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0DE0000000000000000000D /* Config/Build.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Build.xcconfig; sourceTree = SOURCE_ROOT; };
 		D07D86073083C3130097E248 /* Erick-Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Erick-Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB6EDB1DDA98436DA0FA3555 /* Erick-Tracker-LiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Erick-Tracker-LiveActivity.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -156,6 +157,7 @@
 		D07D85FE3083C3130097E248 = {
 			isa = PBXGroup;
 			children = (
+				C0DE0000000000000000000D /* Config/Build.xcconfig */,
 				D07D86093083C3130097E248 /* Erick-Tracker */,
 				C0DE00000000000000000003 /* Erick-TrackerTests */,
 				C0DE0000000000000000000C /* docs */,
@@ -480,7 +482,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				DEVELOPMENT_TEAM = "$(TRACKER_DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
@@ -534,7 +536,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				DEVELOPMENT_TEAM = "$(TRACKER_DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/LiveActivity-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -584,7 +586,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				DEVELOPMENT_TEAM = "$(TRACKER_DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/LiveActivity-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -613,7 +615,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
-				DEVELOPMENT_TEAM = YOUR_TEAM_ID;
+				DEVELOPMENT_TEAM = "$(TRACKER_DEVELOPMENT_TEAM)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Erick Tracker";
@@ -702,6 +704,7 @@
 		};
 		D07D86103083C3140097E248 /* Debug configuration for PBXProject "Erick-Tracker" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DE0000000000000000000D /* Config/Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -765,6 +768,7 @@
 		};
 		D07D86113083C3140097E248 /* Release configuration for PBXProject "Erick-Tracker" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0DE0000000000000000000D /* Config/Build.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;

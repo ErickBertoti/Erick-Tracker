@@ -1,5 +1,13 @@
 # Erick Tracker — roteiro de evolução
 
+## Estado e próximas entregas
+
+As fases 1 e 2 estão implementadas; a fase 2 mantém verificações complementares descritas em seu documento. **Faltam quatro fases funcionais, de 3 a 6**, na ordem abaixo. A próxima é corpo e sono.
+
+Após concluir essas quatro fases, aplicar um **patch adicional exclusivamente visual para o iPhone**, a partir do material do Claude Design fornecido pelo usuário. O patch ajustará a apresentação mobile e sua coerência com o Mac, preservando funcionalidades, modelos, persistência e sincronização. Não iniciar esse redesenho durante as entregas funcionais.
+
+O código é público. Configuração pessoal de backend e assinatura deve permanecer em `Config/Local.xcconfig`, ignorado pelo Git; instruções reproduzíveis no [README](../README.md).
+
 ## Decisões confirmadas
 
 - Aplicativo pessoal, com possibilidade de usar a mesma conta fora do ecossistema iCloud.
@@ -55,10 +63,10 @@ Implementação e procedimentos em [FASE_2.md](FASE_2.md). Em 17/10/2026, os alv
 
 ### Dependências e configuração
 
-1. Projeto **Erick Tracker** (`YOUR_PROJECT_REF`), na **ErickBertoti's Org**, região São Paulo, plano gratuito, criado e ativo. Somente `expenses-counter` foi pausado, preservando seus dados; instruções de retomada em FASE_2.md.
+1. Projeto Supabase configurado na região São Paulo, no plano gratuito. Cada instalação de desenvolvimento deve apontar para seu próprio projeto, sem publicar os identificadores do ambiente pessoal.
 2. Email/senha, confirmação e redirect `ericktracker://auth/callback` configurados. Completar os fluxos de conta pessoal no app. SMTP próprio é necessário antes de atender destinatários fora das restrições do serviço padrão.
 3. Migrações SQL e testes transacionais versionados em `supabase`. RLS, ownership, isolamento por duas identidades e permissões da Data API foram verificados. As tabelas não recebem escritas diretas do cliente.
-4. Configurar URL e chave **publishable** do projeto no cliente. Nunca incluir `service_role`, senha de banco ou chave secreta no app/repositório.
+4. Configurar URL e chave **publishable** em `Config/Local.xcconfig` (ignorado pelo Git), conforme o exemplo versionado. Nunca incluir `service_role`, senha de banco ou chave secreta no app/repositório.
 5. Fixar a versão do SDK Swift e versionar o arquivo de resolução de pacotes.
 6. Validar os conflitos e o protocolo de sincronização antes de usar dados reais como única cópia.
 
@@ -73,6 +81,8 @@ Referências: [executar no dispositivo](https://developer.apple.com/documentatio
 Planejar no Mac, sincronizar com o iPhone, desligar o Mac, executar e concluir um treino em modo avião, encerrar/reabrir o app e preservar tudo. Restaurar a conexão e verificar no Mac os registros exatos, sem duplicatas. Testar mudanças simultâneas, exclusões, expiração de sessão e repetição de requisições.
 
 ## Fase 3 — corpo e sono
+
+Plano detalhado em [FASE_3.md](FASE_3.md), ainda sem implementação. Ordem: modelo/migração V3 → protocolo compatível → corpo → sono → validação nos dois aparelhos. A mudança do protocolo precisa preservar instalações da fase 2 e suas filas pendentes.
 
 ### Entregas
 
@@ -123,4 +133,4 @@ Média de peso em 7 dias: pelo menos 3 registros; média de sono em 7 dias: 4 no
 
 A prioridade é concluir e validar cada fase antes de expandir o domínio seguinte. Antes da fase 2, detalhar e testar o protocolo de sincronização. Antes de importar ou integrar Saúde, validar formatos e duplicação com arquivos/registros reais fornecidos para essa finalidade. Atualizar este roteiro conforme decisões forem confirmadas, mantendo funcionalidades futuras separadas das já disponíveis no aplicativo.
 
-Dependências: fases 3 e 4 acrescentam entidades/migrações ao mecanismo da fase 2; a fase 5 depende de sessões reais validadas; importação, restauração e Saúde na fase 6 dependem dos contratos e testes dos domínios anteriores. O acabamento visual do iPhone pode ser feito em uma rodada própria antes de ampliar o escopo.
+Dependências: fases 3 e 4 acrescentam entidades/migrações ao mecanismo da fase 2; a fase 5 depende de sessões reais validadas; importação, restauração e Saúde na fase 6 dependem dos contratos e testes dos domínios anteriores. O patch visual específico do iPhone fica após a fase 6, conforme a decisão de 17/10/2026.

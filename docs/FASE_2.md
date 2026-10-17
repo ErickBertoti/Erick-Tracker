@@ -74,19 +74,17 @@ Os dados da fase 1 só são associados após a ação **Vincular dados locais**.
 
 Cadastro, confirmação e recuperação usam email/senha e o retorno `ericktracker://auth/callback`. Para recuperação, abrir o link no aparelho onde o pedido foi iniciado, pois o fluxo usa PKCE. Senhas são preenchidas pelo usuário no app.
 
-## Infraestrutura configurada
+## Configuração reproduzível
 
 | Item | Valor |
 |---|---|
-| Organização | ErickBertoti's Org (`YOUR_PROJECT_REF`) |
-| Projeto | Erick Tracker (`YOUR_PROJECT_REF`) |
+| Projeto | Criar um projeto próprio na organização escolhida |
 | Região/plano | São Paulo (`sa-east-1`), gratuito; cotação de criação mensal 0 |
-| URL | `https://your-project.supabase.co` |
+| Conexão | URL e chave publishable em `Config/Local.xcconfig`, ignorado pelo Git |
 | Auth | Email habilitado, confirmação habilitada, anônimo desabilitado |
 | Redirect permitido | `ericktracker://auth/callback` |
-| Projeto financeiro | `expenses-counter` (`YOUR_PROJECT_REF`) pausado, preservado |
 
-O projeto `aura` não foi alterado. Para retomar o financeiro: verificar o limite de projetos ativos do plano, abrir seu projeto no dashboard Supabase e usar **Restore project**; aguardar ficar ativo e verificar a conexão do app original. Se não houver vaga no plano gratuito, decidir explicitamente qual outro projeto pode ser pausado antes da restauração. Nenhum código, tabela ou dado financeiro foi migrado nesta fase; a migração do financeiro para armazenamento local continua adiada.
+Copiar `Config/Local.xcconfig.example` para `Config/Local.xcconfig` e preencher os valores do próprio ambiente. O arquivo compartilhado `Config/Build.xcconfig` carrega essa configuração opcional tanto no Debug quanto no Release. Sem conexão válida, não há cliente de rede nem restauração de autenticação, e o planejador continua local. Somente chaves publishable são aceitas. O arquivo local existente foi preservado neste Mac; detalhes operacionais e evidências pessoais ficam fora do Git.
 
 O email padrão do Supabase tem restrições de destinatários e limite baixo de envio; para uso pessoal, usar um email autorizado na organização. Antes de disponibilizar a terceiros, configurar SMTP próprio e verificar envio, domínio e recuperação. O Site URL padrão não é uma página de produto; todos os fluxos implementados passam o redirect nativo explicitamente.
 
@@ -128,10 +126,10 @@ Disparos: após gravações (debounce de 600 ms), abertura/retomada, recuperaç�
 
 ## Executar e instalar
 
-1. Abrir `Erick-Tracker.xcodeproj` no Xcode 27.1 ou versão compatível com os SDKs usados.
+1. Abrir `Erick-Tracker.xcodeproj` no Xcode 27.1 ou versão compatível com os SDKs usados e configurar `Config/Local.xcconfig` conforme o README.
 2. No Mac, executar o esquema compartilhado **Erick-Tracker**.
 3. No iPhone, executar **Erick-Tracker-iOS**; a dependência incorpora a extensão **Erick-Tracker-LiveActivity**. Há também esquema compartilhado da extensão, que compila ambos e inicia o aplicativo contêiner para criar a atividade.
-4. Em Signing & Capabilities, selecionar a mesma equipe para app e extensão. A equipe pessoal foi configurada neste Mac.
+4. Preencher `TRACKER_DEVELOPMENT_TEAM` no arquivo local, usando a mesma equipe para app e extensão. A equipe pessoal não é versionada.
 5. Parear o iPhone, confiar no Mac e habilitar Modo de Desenvolvedor. O dispositivo usado nesta entrega é iPhone 16 com iOS 26.6.2.
 6. Entrar na mesma conta Supabase nos dois apps, confirmar o email e vincular os dados antigos explicitamente no Mac.
 
@@ -143,7 +141,7 @@ Ativar o Modo de Desenvolvedor permite executar builds de desenvolvimento e exp�
 
 As migrações foram aplicadas no projeto remoto e versionadas com os mesmos identificadores. Para outro ambiente, usar a CLI oficial (`npx supabase`) para iniciar o ambiente local ou vincular explicitamente o projeto desejado e aplicar as migrações. Nunca executar reset no projeto pessoal para testar.
 
-Com Docker e CLI configurados, `supabase start` / `supabase db reset` criam um ambiente local vazio. O arquivo `supabase/tests/sync_protocol.sql` é um script com assertions em transação, executável com `psql -v ON_ERROR_STOP=1 -f ...`; termina em rollback e não deixa contas ou dados de teste. O app desta entrega aponta para o projeto remoto acima; a stack local não foi usada como dependência do app.
+Com Docker e CLI configurados, `supabase start` / `supabase db reset` criam um ambiente local vazio. O arquivo `supabase/tests/sync_protocol.sql` é um script com assertions em transação, executável com `psql -v ON_ERROR_STOP=1 -f ...`; termina em rollback e não deixa contas ou dados de teste. O app usa o projeto configurado localmente; a stack local não foi usada como dependência na validação original.
 
 ## Testes e limites verificados
 
@@ -159,7 +157,7 @@ Com Docker e CLI configurados, `supabase start` / `supabase db reset` criam um a
 
 Permanecem verificações humanas no aparelho: recuperação de senha, troca e expiração de autenticação na interface, execução real com duas etapas e cargas decimais (o teste físico usou valores diferentes do roteiro), teste com o Mac efetivamente desligado, entrega de notificação com processo encerrado (a confirmação foi com tela bloqueada), todos os modos da Dynamic Island, descarte/expiração da atividade pelo sistema, VoiceOver e tamanhos grandes de texto. Duas etapas, carga decimal e correção foram verificadas nos testes de domínio/persistência. O Device Hub não conseguiu espelhar a tela nesta sessão; os resultados visuais físicos foram informados pelo usuário, sem inferir o estado da tela.
 
-Evidências salvas: [histórico recebido no Mac](evidencias/fase-2-historico-mac.png) e [configuração de autenticação](evidencias/fase-2-auth-supabase.png). Os registros de treino nessas evidências são de teste, não representam treino realizado nem recomendação de carga.
+Evidências de configuração e histórico foram preservadas somente no ambiente local, fora do repositório público. Os registros usados eram de teste, não representam treino realizado nem recomendação de carga.
 
 O download adicional do runtime iOS 26.0 foi interrompido a pedido do usuário; a validação da família iOS 26 usa o aparelho físico 26.6.2. O simulador foi desligado. Acabamento visual do iPhone e aproximação do design do Mac ficam para uma rodada posterior, sem bloquear as regras e a persistência da fase 2.
 

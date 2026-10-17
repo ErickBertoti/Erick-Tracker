@@ -246,6 +246,7 @@ struct Phase2Tests {
     func accountSwitchDuringRequest() async throws {
         let owner = UUID(); let fixture = AuthTransportFixture(owner: owner)
         let transport = SupabaseTransport(ownerID: owner,
+            configuration: .init(url: URL(string: "https://example.invalid")!, publishableKey: "sb_publishable_fixture"),
             identity: { await fixture.identity() }, fetch: { request in await fixture.fetch(request) })
         let first = Task { try await transport.pull(after: 0, limit: 100) }
         await fixture.waitForRequest()
@@ -256,6 +257,14 @@ struct Phase2Tests {
             Issue.record("A requisição da conta anterior não foi bloqueada")
         } catch AccountFailure.accountChanged { }
         #expect(await fixture.authorizationHeaders == ["Bearer fixture-token-a"])
+    }
+    @Test("Configuração ausente ou privilegiada nunca habilita o cliente de nuvem")
+    func cloudConfiguration() {
+        #expect(CloudConfiguration.read([:]) == nil)
+        #expect(CloudConfiguration.read(["SupabaseURL": "$(SUPABASE_URL)", "SupabasePublishableKey": "$(SUPABASE_PUBLISHABLE_KEY)"]) == nil)
+        #expect(CloudConfiguration.read(["SupabaseURL": "https://example.invalid", "SupabasePublishableKey": "sb_secret_fixture"]) == nil)
+        let valid = CloudConfiguration.read(["SupabaseURL": "https://example.invalid", "SupabasePublishableKey": "sb_publishable_fixture"])
+        #expect(valid?.url.host == "example.invalid")
     }
 }
 

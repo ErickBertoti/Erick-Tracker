@@ -1,0 +1,6 @@
+// Shared defaults. Personal connection and signing settings stay on this Mac.
+SUPABASE_URL =
+SUPABASE_PUBLISHABLE_KEY =
+TRACKER_DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"
