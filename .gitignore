@@ -10,3 +10,6 @@ SourcePackages/checkouts/
 *.xccheckout
 *.moved-aside
 **/xcuserdata/
+
+# Pacote de design do Claude Design, mantido só localmente
+workout-app-overview-and-body-metrics/
