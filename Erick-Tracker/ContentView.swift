@@ -5,6 +5,7 @@ struct ContentView: View {
     @Bindable var store: WorkoutStore
     var account: AppController?
     @State private var showingAccount = false
+    @State private var progressCreationRequest = 0
     @Query(sort: \Program.position) private var programs: [Program]
     @Query(sort: \Exercise.name) private var exercises: [Exercise]
     @Query(sort: \WorkoutTemplate.updatedAt, order: .reverse) private var workouts: [WorkoutTemplate]
@@ -36,6 +37,7 @@ struct ContentView: View {
         case .workouts: return "Treinos"
         case .exercises: return "Exercícios"
         case .history: return "Histórico"
+        case .progress: return "Progresso"
         case .program: return selectedProgram?.name ?? "Treinos"
         }
     }
@@ -47,7 +49,7 @@ struct ContentView: View {
             detail
                 .navigationTitle(title)
                 .toolbar { toolbar }
-                .inspector(isPresented: Binding(get: { navigation.inspectorVisible && !isHome && navigation.destination != .history }, set: { navigation.inspectorVisible = $0 })) {
+                .inspector(isPresented: Binding(get: { navigation.inspectorVisible && !isHome && ![.history,.progress].contains(navigation.destination) }, set: { navigation.inspectorVisible = $0 })) {
                     inspector.inspectorColumnWidth(min: 260, ideal: 280, max: 340)
                 }
                 .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -122,6 +124,7 @@ struct ContentView: View {
                 Label("Treinos", systemImage: "list.bullet.rectangle").tag(WorkspaceDestination.workouts)
                 Label("Exercícios", systemImage: "figure.strengthtraining.traditional").tag(WorkspaceDestination.exercises)
                 Label("Histórico", systemImage: "clock.arrow.circlepath").tag(WorkspaceDestination.history)
+                Label("Progresso", systemImage: "chart.xyaxis.line").tag(WorkspaceDestination.progress)
             }
             Section {
                 ForEach(programs) { program in
@@ -159,6 +162,8 @@ struct ContentView: View {
                 openWorkout: { navigation.open($0) })
         } else if navigation.destination == .history {
             SessionHistoryView()
+        } else if navigation.destination == .progress {
+            ProgressRootView(store: store, newEntryRequest: progressCreationRequest)
         } else {
             libraries
                 .searchable(text: $navigation.search, placement: .toolbar,
@@ -189,7 +194,7 @@ struct ContentView: View {
             if let account {
                 Button { showingAccount = true } label: { Label(account.sync?.status ?? "Conta", systemImage: "person.crop.circle") }
             }
-            if navigation.destination != .history {
+            if ![.history,.progress].contains(navigation.destination) {
             Button(action: primaryAction) { Label(primaryTitle, systemImage: "plus") }
                 .help(primaryTitle + " (⌘N)")
                 .popover(isPresented: $addingExercise) {
@@ -202,7 +207,7 @@ struct ContentView: View {
                     }
                 }
             }
-            if !isHome && navigation.destination != .history {
+            if !isHome && ![.history,.progress].contains(navigation.destination) {
                 Button { navigation.inspectorVisible.toggle() } label: { Label("Mostrar inspetor", systemImage: "sidebar.right") }
                     .help("Mostrar ou ocultar inspetor (⌥⌘I)")
             }
@@ -212,7 +217,7 @@ struct ContentView: View {
                     Button("Renomear programa…") { editorSheet = .program(program) }
                     Button("Apagar programa…", role: .destructive) { deletion = .program(program) }
                 }
-                if let workout = editingWorkout ?? selectedWorkout, navigation.destination != .exercises && !isHome {
+                if let workout = editingWorkout ?? selectedWorkout, navigation.destination != .exercises && !isHome && ![.history,.progress].contains(navigation.destination) {
                     Divider()
                     Button("Duplicar treino") { navigation.open(store.duplicateWorkout(workout)) }
                     Button(workout.isArchived ? "Restaurar treino" : "Arquivar treino") { store.setArchived(workout, !workout.isArchived) }
@@ -248,11 +253,13 @@ struct ContentView: View {
     }
 
     private var primaryTitle: String {
+        if navigation.destination == .progress { return "Novo registro" }
         if editingWorkout != nil { return "Adicionar exercício" }
         return navigation.destination == .exercises ? "Novo exercício" : "Novo treino"
     }
     private func primaryAction() {
-        if editingWorkout != nil { addingExercise = true }
+        if navigation.destination == .progress { progressCreationRequest += 1 }
+        else if editingWorkout != nil { addingExercise = true }
         else if navigation.destination == .exercises { editorSheet = .exercise(nil) }
         else { editorSheet = .workout(selectedProgram) }
     }
@@ -277,12 +284,13 @@ struct ContentView: View {
         return WorkspaceCommandActions(primaryTitle: primaryTitle, primary: primaryAction,
             newWorkout: { editorSheet = .workout(selectedProgram) }, newProgram: { editorSheet = .program(nil) },
             search: {
+                if navigation.destination == .progress { return }
                 if editingWorkout != nil { addingExercise = true }
                 else {
                     if isHome { navigation.navigate(to: .workouts) }
                     searchFocused = true
                 }
-            }, toggleInspector: isHome ? nil : { navigation.inspectorVisible.toggle() },
+            }, toggleInspector: isHome || [.history,.progress].contains(navigation.destination) ? nil : { navigation.inspectorVisible.toggle() },
             duplicate: duplicateAction, delete: deleteAction,
             addExercise: editingWorkout == nil ? nil : { addingExercise = true },
             addSet: item.map { selected in { store.addSet(to: selected) } },
@@ -291,6 +299,7 @@ struct ContentView: View {
             navigate: { navigation.navigate(to: $0) })
     }
     private var duplicateAction: (() -> Void)? {
+        if [.history,.progress].contains(navigation.destination) { return nil }
         if let item = selectedItem { return { navigation.selectedItemID = store.duplicateItem(item)?.id } }
         if navigation.destination == .exercises, let exercise = selectedExercise {
             return { navigation.selectedExerciseID = store.duplicateExercise(exercise)?.id }
@@ -301,6 +310,7 @@ struct ContentView: View {
         return nil
     }
     private var deleteAction: (() -> Void)? {
+        if [.history,.progress].contains(navigation.destination) { return nil }
         if let item = selectedItem { return { navigation.selectedItemID = nil; store.removeItem(item) } }
         if navigation.destination == .exercises, let exercise = selectedExercise { return { deletion = .exercise(exercise) } }
         if !isHome && navigation.destination != .exercises, let workout = editingWorkout ?? selectedWorkout { return { deletion = .workout(workout) } }

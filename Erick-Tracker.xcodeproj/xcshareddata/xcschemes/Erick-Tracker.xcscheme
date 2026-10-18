@@ -43,6 +43,9 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       language = "pt-BR"
       region = "BR">
+      <EnvironmentVariables>
+         <EnvironmentVariable key = "TRACKER_UNIT_TESTING" value = "1" isEnabled = "YES"/>
+      </EnvironmentVariables>
       <Testables>
          <TestableReference
             skipped = "NO">

@@ -48,20 +48,27 @@ nonisolated enum CloudConfiguration {
     @ObservationIgnored private let monitor = NWPathMonitor()
 
     init() {
-        client = CloudConfiguration.current.map { configuration in
-            SupabaseClient(supabaseURL: configuration.url, supabaseKey: configuration.publishableKey,
-                options: .init(auth: .init(storage: KeychainLocalStorage(service: "ErickTracker.Auth"),
-                    redirectToURL: Self.redirectURL, emitLocalSessionAsInitialSession: true)))
-        }
         #if DEBUG
         if let id = UITestBootstrap.storeID {
+            client = nil
             persistence = UITestBootstrap.makePersistence(id: id)
             userID = id; email = "testes@example.invalid"; isRestoring = false
             sessions = persistence.store.map(SessionStore.init)
             persistence.store?.onSave = { [weak self] in self?.onLocalSave?() }
             return
         }
+        if TestRuntime.isUnitTesting || TestRuntime.isPreviewing {
+            // The test host must never open the user's Keychain or account files.
+            client = nil; persistence = PersistenceController(inMemory: true)
+            isRestoring = false; sessions = persistence.store.map(SessionStore.init)
+            return
+        }
         #endif
+        client = CloudConfiguration.current.map { configuration in
+            SupabaseClient(supabaseURL: configuration.url, supabaseKey: configuration.publishableKey,
+                options: .init(auth: .init(storage: KeychainLocalStorage(service: "ErickTracker.Auth"),
+                    redirectToURL: Self.redirectURL, emitLocalSessionAsInitialSession: true)))
+        }
         if UserDefaults.standard.string(forKey: "legacyClaimedBy") == nil {
             let local = PersistenceController(); persistence = local; legacy = local
             if let c = local.container { legacyImportCount = (try? Snapshots.all(in: c.mainContext).count) ?? 0 }
@@ -215,10 +222,10 @@ nonisolated enum CloudConfiguration {
     nonisolated struct ApplyParams: Encodable, Sendable { var p_mutation: MutationRequest }
     nonisolated struct PullParams: Encodable, Sendable { var p_after: Int64; var p_limit: Int }
     func apply(_ request: MutationRequest) async throws -> MutationReply {
-        try await database.rpc("tracker_apply_mutation", params: ApplyParams(p_mutation: request)).execute().value
+        try await database.rpc("tracker_apply_mutation_v2", params: ApplyParams(p_mutation: request)).execute().value
     }
     func pull(after revision: Int64, limit: Int) async throws -> [RemoteChange] {
-        try await database.rpc("tracker_pull_changes", params: PullParams(p_after: revision, p_limit: limit)).execute().value
+        try await database.rpc("tracker_pull_changes_v2", params: PullParams(p_after: revision, p_limit: limit)).execute().value
     }
 }
 nonisolated enum AccountFailure: LocalizedError {

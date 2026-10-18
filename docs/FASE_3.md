@@ -2,11 +2,11 @@
 
 ## Estado e objetivo
 
-**Planejada, sem implementação iniciada.** Próxima entrega após o planejador Mac e a execução/sincronização do iPhone. Acrescentar registro manual de corpo e sono nos dois aparelhos, com persistência offline, histórico editável e gráficos derivados dos registros existentes.
+**Implementada; fluxo principal validado no Mac e no iPhone.** Registro manual de corpo e sono em SwiftUI nos dois aparelhos, com persistência offline, histórico editável e gráficos derivados dos registros existentes. A migração compatível do backend foi aplicada; a regressão de 54 testes pelo Mac passou e o teste conjunto no iPhone confirmou os fluxos descritos abaixo.
 
-Faltam quatro fases funcionais no roteiro: **3 — corpo e sono; 4 — nutrição; 5 — progresso e painel completo; 6 — dados, integrações e distribuição**. Depois delas será aplicado o patch exclusivamente visual do mobile, com o material do Claude Design. A fase 3 usa componentes nativos e o estilo atual; não antecipa esse redesenho.
+A fase 3 foi aceita pelo usuário para publicação no GitHub após os testes conjuntos. Restam **4 — nutrição; 5 — progresso e painel completo; 6 — dados, integrações e distribuição**. Ao final será aplicado o patch exclusivamente visual do mobile, com o material do Claude Design. A fase 3 usa componentes nativos e o estilo atual; não antecipa esse redesenho.
 
-O handoff local é referência de comportamento. As decisões deste documento seguem as escolhas confirmadas na conversa: SwiftUI, SwiftData e Supabase, português brasileiro e dados iniciais vazios. Dados de demonstração ficam apenas em testes/previews. O plano não altera o backend, nem solicita permissões do Saúde.
+O handoff local é referência de comportamento. As decisões deste documento seguem as escolhas confirmadas na conversa: SwiftUI, SwiftData e Supabase, português brasileiro e dados iniciais vazios. Dados de demonstração ficam apenas em testes/previews. Esta entrega acrescenta o contrato remoto de corpo/sono e não solicita permissões do Saúde.
 
 ## Escopo funcional
 
@@ -24,6 +24,8 @@ Ficam para as fases seguintes: Saúde/HealthKit, importação de balanças ou CS
 ## Modelo local — SwiftData V3
 
 Manter V1 e V2 intactos e acrescentar `TrackerSchemaV3`, reutilizando seus tipos anteriores e adicionando as entidades abaixo. Atualizar `TrackerMigrationPlan` com V2 → V3; testar também o caminho V1 → V2 → V3. Não apagar/recriar containers para migrar. Arquivos por conta e bases locais anteriores permanecem separados.
+
+A implementação preserva as classes persistentes antigas. V3 reutiliza os modelos de treino e sessão e introduz novas versões de `PendingMutation` e `SyncConflict`, com valores padrão para os campos adicionados. Filas migradas recebem `protocolVersion = 1`; novas operações recebem 2. `EntryDraft` persiste apenas o rascunho local de cada formulário, separado dos snapshots enviados.
 
 | Entidade | Campos principais | Unidade de sincronização |
 |---|---|---|
@@ -80,6 +82,8 @@ Regras implementadas em funções puras, com calendário/fuso e data de referên
 Se os dados não atingirem o mínimo, uma frase curta explica a quantidade necessária. Nenhum cartão de métrica ausente é criado. Com tudo vazio, mostrar somente um convite para começar a registrar. Variações usam sinal +/− e cor neutra; sem avaliação de melhora/piora por vermelho/verde.
 
 Swift Charts: pontos de peso e linha de média, barras de duração e faixa dormir → acordar; inspeção por toque/ponteiro e alternativa textual acessível. Períodos: 7, 30 e 90 dias, 1 ano e tudo. Séries esparsas mantêm lacunas. Horários próximos à meia-noite devem aparecer em um eixo contínuo adequado à noite. Duração de sono recebe a legenda “Registro pessoal”; referências gráficas não serão apresentadas como recomendações médicas.
+
+Na duração do sono, a média móvel é apresentada por losangos em cada noite com dados suficientes, sem unir lacunas por uma linha. Os horários médios são apresentados em texto por grupo de fusos, junto da faixa gráfica de cada noite. O histórico oferece os mesmos valores e ações de edição.
 
 ## Interface em SwiftUI
 
@@ -159,3 +163,79 @@ Com a mesma conta nos dois aparelhos: registrar peso, duas medidas e composiçã
 Apagar/editar uma medição deve recalcular somente os indicadores que dependem dela, sem mudar treino, prescrição ou sessões. Se não houver dados suficientes, nenhum número ou tendência é inventado. Confirmar que o app continua operando com opcionais vazios e que o conflito de uma noite pode ser resolvido mantendo os dados visíveis até a escolha.
 
 Ao concluir, atualizar este documento com migrações e versões aplicadas, testes executados, instruções de uso e limitações verificadas; atualizar README e ROADMAP. Não marcar a fase concluída enquanto o fluxo entre dispositivos não estiver validado.
+
+## Implementação e configuração entregues
+
+- `Shared/Models/ProgressSchema.swift` e `ProgressRules.swift`: V3, métricas/unidades distintas, validação decimal, datas civis, fusos e estatísticas com limiares.
+- `Shared/Persistence/ProgressStore.swift`: serviços corporais e de sono; domínio, retirada do rascunho e fila persistente gravados na mesma transação. Falhas preservam o rascunho e não deixam alterações prontas para envio.
+- `Shared/Sync/ProgressSnapshots.swift` e `SyncEngine.swift`: snapshots completos, cursor `changes-v2`, preservação de operações v1 já enviadas, conflitos de edição/exclusão e de noites concorrentes.
+- `Shared/UI/ProgressRootView.swift`, `ProgressEntryViews.swift` e `ProgressCharts.swift`: navegação Progresso, formulários, histórico, perfil opcional e gráficos compartilhados. Mac usa barra lateral e ⌘4; iPhone usa a aba Progresso antes de Ajustes.
+- Migração remota: `supabase/migrations/20261017215656_phase3_body_sleep.sql`. Aplicar depois das duas migrações da fase 2, antes de executar clientes da fase 3. Não exige nova chave, serviço pago ou permissão no iPhone.
+- RPCs atuais: `tracker_apply_mutation_v2` e `tracker_pull_changes_v2`. Endpoints v1 permanecem disponíveis e retornam somente os quatro tipos antigos. As duas versões compartilham revisões serializadas, recibos idempotentes e ownership.
+- O servidor valida métricas, unidades, métodos, filhos e unicidade da noite por conta; exclusões permanecem como tombstones. Nenhuma escrita direta de tabelas foi liberada ao cliente.
+
+Para usar: abrir **Progresso**, selecionar **Visão geral**, **Corpo** ou **Sono** e usar **+** para registrar. **Salvar** confirma e enfileira; **Cancelar** descarta o rascunho. Um formulário interrompido pode ser recuperado ao abrir a mesma ação nesta conta/aparelho. Resolver conflitos em **Conta e sincronização** antes de contar noites ambíguas nas médias.
+
+## Isolamento dos testes e pedidos de senha
+
+Foi identificada uma sequência de oito pedidos do Keychain durante uma execução de testes. Um helper liberava seu `ModelContainer` temporário cedo demais, derrubando o processo; os relançamentos automáticos do Xcode inicializavam a autenticação real e solicitavam a sessão `ErickTracker.Auth`.
+
+O helper passou a manter o container vivo. Os esquemas compartilhados definem `TRACKER_UNIT_TESTING=1` em Test, e o `AppController` reconhece testes/previews antes de construir o cliente Supabase ou abrir arquivos de contas. Testes unitários usam memória; fixtures de interface usam um arquivo próprio e nenhum cliente de autenticação. Um teste de regressão verifica esse isolamento. Não foram alteradas permissões globais do Keychain nem credenciais do usuário.
+
+As execuções de validação também desabilitam assinatura e removem a configuração de nuvem por build settings. Isso evita solicitar a chave Apple Development durante testes pelo Mac. A instalação futura no iPhone continuará usando o fluxo normal de assinatura, uma execução por vez.
+
+## Validações e limites
+
+Em 17/10/2026, os **54 testes em 6 suítes do Mac passaram** na regressão final, com testes paralelos desativados, `CODE_SIGNING_ALLOWED=NO` e configuração de nuvem vazia. Isso inclui as regressões das fases 1 e 2 e os novos testes de V3, corpo, sono, protocolo e renderização. Os logs do sistema confirmaram zero pedidos do Keychain nas execuções isoladas após a correção.
+
+O esquema `Erick-Tracker-iOS` também compilou para `generic/platform=iOS`, incluindo a extensão de Live Activity. A versão para o teste conjunto foi assinada, validada e instalada no iPhone existente, preservando os dados. O aviso de extração de metadados App Intents ignorada decorre de não haver dependência desse framework.
+
+Reprodução pelo terminal, uma execução por vez, a partir da raiz do projeto (com Xcode selecionado):
+
+```sh
+xcodebuild -project Erick-Tracker.xcodeproj -scheme Erick-Tracker \
+  -destination 'platform=macOS' -jobs 2 -parallel-testing-enabled NO \
+  test CODE_SIGNING_ALLOWED=NO SUPABASE_URL= SUPABASE_PUBLISHABLE_KEY=
+
+xcodebuild -project Erick-Tracker.xcodeproj -scheme Erick-Tracker-iOS \
+  -destination 'generic/platform=iOS' -jobs 2 \
+  build CODE_SIGNING_ALLOWED=NO SUPABASE_URL= SUPABASE_PUBLISHABLE_KEY=
+```
+
+As suítes locais cobrem as migrações em disco, o protocolo de sincronização, falha de gravação, retomada de fila, IDs dos filhos, conflitos de noite e exclusão, rascunhos e os limiares estatísticos. A renderização usa dados fictícios, com inspeção das telas e formulários em claro/escuro; capturas permanecem temporárias e fora do Git. A captura de views não substitui navegação interativa ou teste de VoiceOver.
+
+No backend, `supabase/tests/sync_protocol.sql` e `supabase/tests/progress_protocol.sql` passaram após a migração, em transações revertidas e com identidades fictícias. Foram verificados reenvios v1/v2, recibos, exclusões, validação de payload, paginação após 200 alterações, noites duplicadas e isolamento por duas contas. O advisor de desempenho não reportou achados. O de segurança manteve somente o aviso preexistente de proteção contra senhas vazadas desativada; não reportou novos problemas de schema/RLS nesta mudança.
+
+**Aceite funcional principal concluído:** os resultados físicos confirmados estão abaixo, incluindo a comparação final da correção corporal no servidor e no Mac. A recuperação offline foi confirmada pelo usuário; a inspeção não capturou a fila ainda offline. Dynamic Type e VoiceOver ainda não foram verificados no aparelho. O zero explícito em despertares foi verificado nos testes automatizados; o usuário escolheu outro valor na rodada física. Os fluxos de conta, sessão e Live Activity da fase 2 ainda não foram repetidos nesta versão. Os testes desta fase não iniciam simulador.
+
+### Ampliação dos testes pelo Mac
+
+Foram acrescentadas regressões para rascunhos incompletos que sobrevivem à reabertura do arquivo, cancelamento sem alterar o histórico, confirmação atômica, bordas das janelas estatísticas em transição de horário de verão e um registro de sono que cruza o ano no fuso salvo. O teste de sono reabre dois arquivos locais, perde a resposta de um envio já aplicado, retoma a mesma operação e recebe uma correção offline sem duplicar a noite nem converter ausência de despertares em zero.
+
+A simulação de falha de gravação revelou que o arquivo e a fila preservavam o estado anterior, mas modelos já carregados podiam continuar mostrando campos editados após `rollback`. A gravação de Progresso agora guarda o snapshot anterior e restaura também esses campos na memória. O rascunho permanece disponível para nova tentativa. A exclusão de um registro corporal desassocia e exclui seus valores explicitamente, preservando a possibilidade de desfazer a operação se a gravação falhar. A regra de cascata do schema continua existindo. Os testes verificam edição em memória/arquivo, retirada de uma métrica, exclusão, limpeza de perfil, identidade dos registros, conteúdo da fila e nova tentativa.
+
+Na interface Mac foram confirmados ⌘4 para Progresso, estado vazio, ⌘N contextual e erro legível ao tentar salvar peso vazio. A ferramenta de controle da janela falhou durante o preenchimento; o aplicativo continuou aberto. No teste conjunto, o usuário confirmou criação e gravação de medidas/composição e o clique nos campos corrigidos. Edição/exclusão de registros existentes pelo Mac, teclado completo e VoiceOver ainda precisam de verificação interativa. Os testes automatizados acima verificam o domínio e a persistência desses fluxos, sem substituir essa conferência visual.
+
+Resultado da ampliação: **54 testes em 6 suítes aprovados**. As correções adicionais também foram incluídas na compilação iOS instalada para o teste conjunto. O backend não precisou de outra mudança nesta rodada.
+
+### Teste físico conjunto
+
+Em 17/10/2026, o iPhone 16 com iOS 26.6.2 foi detectado pelo cabo, pareado e com Modo de Desenvolvedor ativo. O código, incluindo as correções da rodada adicional do Mac, compilou para iOS e extensão, foi assinado e teve a assinatura validada. Uma única atualização foi instalada no bundle existente, sem desinstalar o aplicativo. A primeira tentativa de abertura remota foi recusada por tela bloqueada; o usuário abriu o aplicativo manualmente.
+
+O usuário confirmou a abertura, a aba Progresso e a presença dos treinos/histórico anteriores. O Mac também compilou e abriu a versão atual com a conta existente e assinatura baseada no certificado de desenvolvimento. Não foi desinstalado nenhum app nem apagado o armazenamento de contas.
+
+O usuário cadastrou no iPhone um peso fictício de **80,25 kg** e confirmou a apresentação com vírgula. A nuvem recebeu `80.25`; a inspeção somente de leitura do arquivo da conta no Mac confirmou um registro corporal, um valor correspondente e nenhuma mutação pendente, com o cursor v2 atualizado. A captura da janela do Mac também mostrou esse peso em Progresso. Para a etapa de envio independente, o app Mac foi fechado; o computador continuou ligado para esta sessão de testes.
+
+O usuário confirmou que o registro de sono reapareceu após encerrar/reabrir o iPhone offline e que uma correção de despertares/qualidade também sobreviveu à reabertura. Ele escolheu dados diferentes do roteiro; a validação compara os campos efetivamente salvos, sem assumir a duração ou o número sugeridos. Quando o servidor foi consultado, o registro e sua correção já tinham sido enviados; portanto, a ausência de conexão durante a edição/reabertura é confirmada pelo relato do usuário, e não por uma captura da fila ainda offline.
+
+Com o app Mac fechado, uma cópia de leitura do arquivo da conta no iPhone foi obtida pelo cabo e preservada em pasta temporária privada fora do repositório. A integridade SQLite passou. A comparação semântica confirmou igualdade completa dos snapshots de peso e sono com o servidor, incluindo UUIDs, horários, fusos, opcionais, notas e revisões. Os campos do domínio local também coincidem com seus snapshots. Havia um registro de cada tipo, nenhuma mutação pendente e nenhum conflito. O rascunho de edição remanescente correspondia aos dados salvos.
+
+Depois de reabrir o Mac, o arquivo local recebeu esses mesmos snapshots e revisões: um registro corporal e um de sono, sem fila pendente ou conflitos. Não houve duplicatas nem dependência de o app Mac estar aberto durante o envio. Horários, notas e outros valores escolhidos no aparelho permanecem somente nas evidências locais privadas, sem inclusão nos arquivos públicos.
+
+O usuário confirmou no iPhone a recuperação do texto incompleto `81,` e do aviso de rascunho após encerrar/reabrir offline, seguida de Cancelar. A consulta posterior ao servidor manteve somente o peso já confirmado, sem publicar o formulário cancelado.
+
+No caminho inverso, o usuário criou no Mac um único registro com Cintura e Braço e confirmou que as duas medidas chegaram juntas no iPhone. A nuvem contém as duas métricas separadas em centímetros no mesmo agregado. O preenchimento inicialmente exigiu Tab: o clique na segunda entrada não selecionava a área editável. Os campos passaram a ocultar o rótulo interno duplicado, usar caixa com borda nativa e largura escalada com o tamanho do texto. A renderização de um formulário com duas métricas passou em claro/escuro. Mac, iPhone e extensão compilaram e tiveram suas assinaturas validadas após o ajuste. O teste de renderização foi repetido com sucesso após esta mudança; a última regressão completa continua com 54 testes aprovados.
+
+O usuário confirmou o clique direto nas caixas do Mac, salvou uma composição com Bioimpedância e recebeu no iPhone Gordura corporal (%), Massa muscular esquelética (kg) e Massa magra (kg) como três métricas distintas. Os snapshots da composição no iPhone e servidor coincidem, e os valores do domínio local correspondem ao snapshot. Uma única atualização adicional do iPhone incluiu o ajuste dos campos, preservando a instalação e os dados.
+
+O usuário também relatou recuperar uma edição corporal após salvar e reabrir offline. A cópia de leitura obtida pelo cabo ainda apresentava o valor anterior, sem fila pendente. Após conferir novamente o formulário, o usuário confirmou Salvar e Sincronizar. A inspeção final do servidor e do Mac encontrou o valor fictício esperado, **32,5 cm**, no mesmo registro de medidas e com os mesmos IDs de métricas. Os quatro snapshots comparados coincidem integralmente, inclusive revisões: três registros corporais e um de sono, sem duplicatas, mutações pendentes ou conflitos no Mac. A diferença foi encerrada pela comparação do resultado sincronizado; a inspeção não comprova a existência de uma fila corporal ainda offline antes do envio.

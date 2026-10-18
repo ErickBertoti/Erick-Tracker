@@ -84,20 +84,20 @@ struct SyncStatusSection: View {
                 ForEach(conflicts) { conflict in
                     VStack(alignment: .leading, spacing: 8) {
                         Text(conflictTitle(conflict)).font(.headline)
-                        Text(conflict.remotePayload == nil ? "O registro foi excluído na nuvem. Sua versão local está preservada." : "Há uma versão diferente na nuvem. Escolha qual preservar.")
+                        Text(conflict.reasonRaw == "duplicateNight" ? "Outra versão desta noite foi registrada. As duas estão preservadas; esta noite fica fora das médias até a escolha." : (conflict.remotePayload == nil ? "O registro foi excluído na nuvem. Sua versão local está preservada." : "Há uma versão diferente na nuvem. Escolha qual preservar."))
                             .font(.caption).foregroundStyle(.secondary)
                         DisclosureGroup("Comparar versões") {
                             Text("Neste aparelho").font(.caption.bold())
                             Text(pretty(conflict.localPayload, kind: conflict.kindRaw)).font(.caption.monospaced()).textSelection(.enabled)
                             Text("Na nuvem").font(.caption.bold())
-                            Text(pretty(conflict.remotePayload, kind: conflict.kindRaw)).font(.caption.monospaced()).textSelection(.enabled)
+                            Text(pretty(conflict.reasonRaw == "duplicateNight" ? conflict.competingPayload : conflict.remotePayload, kind: conflict.kindRaw)).font(.caption.monospaced()).textSelection(.enabled)
                         }
-                        Button("Usar versão da nuvem") { engine.resolve(conflict, choosing: .remote) }
-                        if conflict.remotePayload != nil || conflict.kindRaw == EntityKind.workout.rawValue {
-                            Button(conflict.remotePayload == nil ? "Salvar como novo treino" : "Usar versão deste aparelho") { engine.resolve(conflict, choosing: .local) }
+                        Button(conflict.reasonRaw == "duplicateNight" ? "Manter a noite da nuvem e descartar esta alteração" : "Usar versão da nuvem") { engine.resolve(conflict, choosing: .remote) }
+                        if conflict.remotePayload != nil || [EntityKind.workout, .bodyRecord].map(\.rawValue).contains(conflict.kindRaw) || conflict.reasonRaw == "duplicateNight" {
+                            Button(conflict.reasonRaw == "duplicateNight" ? "Usar esta versão para substituir a noite existente" : (conflict.remotePayload == nil ? "Salvar como novo registro" : "Usar versão deste aparelho")) { engine.resolve(conflict, choosing: .local) }
                         }
-                        if conflict.kindRaw == EntityKind.workout.rawValue, conflict.localPayload != nil, conflict.remotePayload != nil {
-                            Button("Manter ambos os treinos") { engine.resolve(conflict, choosing: .both) }
+                        if [EntityKind.workout.rawValue, EntityKind.bodyRecord.rawValue].contains(conflict.kindRaw), conflict.localPayload != nil, conflict.remotePayload != nil {
+                            Button("Manter ambos os registros") { engine.resolve(conflict, choosing: .both) }
                         }
                         if conflict.kindRaw == EntityKind.exercise.rawValue, conflict.remotePayload != nil {
                             Button("Arquivar exercício em vez de apagar") { engine.resolve(conflict, choosing: .archiveExercise) }
@@ -129,7 +129,17 @@ struct SyncStatusSection: View {
             return ([s.name, s.notes] + s.exercises.map { e in
                 e.name + ": " + e.sets.flatMap(\.segments).map { "\($0.reps.map(String.init) ?? "—") reps × \($0.loadKg ?? "—") kg" }.joined(separator: "; ")
             }).filter { !$0.isEmpty }.joined(separator: "\n")
-        case nil: return "Versão preservada"
+        case .bodyProfile:
+            guard let p = try? SnapshotCodec.decode(BodyProfileSnapshot.self, from: data) else { return "Perfil preservado" }
+            return "Altura: \(ProgressRules.formatted(p.heightCm)) cm\nNascimento: \(p.birthDate ?? "—")\n\(p.notes)"
+        case .bodyRecord:
+            guard let p = try? SnapshotCodec.decode(BodyRecordSnapshot.self, from: data) else { return "Medição preservada" }
+            return ([p.measuredAt.formatted(date: .abbreviated, time: .shortened), p.method?.label ?? "", p.methodNotes, p.notes]
+                + p.values.map { "\($0.kind.label): \(ProgressRules.formatted($0.value)) \($0.unit)" }).filter { !$0.isEmpty }.joined(separator: "\n")
+        case .sleep:
+            guard let p = try? SnapshotCodec.decode(SleepSnapshot.self, from: data) else { return "Noite preservada" }
+            return "Noite de \(p.wakeDate)\n\(p.startedAt.formatted()) → \(p.endedAt.formatted())\n\(ProgressRules.durationLabel(p.endedAt.timeIntervalSince(p.startedAt)))\nDespertares: \(p.awakenings.map(String.init) ?? "—")\n\(p.quality?.label ?? "")\n\(p.notes)"
+        case .unknown, nil: return "Versão preservada"
         }
     }
 }

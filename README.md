@@ -4,6 +4,8 @@ Planejador de treinos para macOS e execução no iPhone, feito em SwiftUI. Cada 
 
 O projeto está em desenvolvimento, em português brasileiro. O Mac cria programas, exercícios e modelos; o iPhone registra séries, retoma sessões offline e permite corrigir o histórico. Descansos têm Live Activity, Dynamic Island e aviso local opcional.
 
+A fase 3 acrescenta Progresso nos dois apps, com peso, medidas, composição corporal e sono manuais, perfil opcional, histórico e gráficos. O fluxo funcional principal foi validado no Mac e no iPhone; os resultados e as verificações complementares estão documentados na fase.
+
 ## Executar
 
 1. Abrir `Erick-Tracker.xcodeproj` em uma versão do Xcode compatível com os SDKs do projeto (validado com Xcode 27.1).
@@ -21,15 +23,15 @@ As migrações e os testes do backend estão em `supabase/`. Aplicá-los somente
 |---|---|---|
 | 1 | Planejador local para Mac | Implementada |
 | 2 | iPhone, execução offline, sincronização e Live Activity | Implementada; verificações complementares documentadas |
-| 3 | Corpo e sono | Próxima |
+| 3 | Corpo e sono | Implementada; fluxo principal validado no Mac e no iPhone |
 | 4 | Nutrição | Planejada |
 | 5 | Progresso e painel completo | Planejada |
 | 6 | Importação, exportação, Saúde, acessibilidade e distribuição | Planejada |
 
 Depois das fases 3–6 haverá um patch exclusivamente visual para o mobile, com base no material do Claude Design. Ele será aplicado sobre as funcionalidades concluídas, preservando os contratos de dados e sincronização.
 
-Detalhes, critérios e limites de validação: [Fase 1](docs/FASE_1.md), [Fase 2](docs/FASE_2.md), [plano da Fase 3](docs/FASE_3.md) e [Roadmap](docs/ROADMAP.md). O app começa vazio; dados de demonstração existem apenas em previews e testes.
+Detalhes, critérios e limites de validação: [Fase 1](docs/FASE_1.md), [Fase 2](docs/FASE_2.md), [Fase 3](docs/FASE_3.md) e [Roadmap](docs/ROADMAP.md). O app começa vazio; dados de demonstração existem apenas em previews e testes.
 
 ## Testes
 
-No Xcode, usar Product → Test no esquema do Mac ou do iPhone. Os testes cobrem regras de domínio, persistência, migração e protocolo de sincronização. `supabase/tests/sync_protocol.sql` executa assertions em uma transação revertida, com identidades fictícias. As verificações físicas e os casos ainda pendentes estão descritos na documentação da fase 2.
+No Xcode, usar Product → Test no esquema do Mac ou do iPhone. Os testes cobrem regras de domínio, persistência, migração e protocolo de sincronização. Os esquemas isolam a autenticação e usam armazenamento de teste; previews também não acessam a conta real. `supabase/tests/sync_protocol.sql` e `supabase/tests/progress_protocol.sql` executam assertions em transações revertidas, com identidades fictícias. As verificações físicas e os casos ainda pendentes estão descritos na documentação das fases 2 e 3.

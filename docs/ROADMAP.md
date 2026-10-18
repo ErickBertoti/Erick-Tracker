@@ -2,9 +2,9 @@
 
 ## Estado e próximas entregas
 
-As fases 1 e 2 estão implementadas; a fase 2 mantém verificações complementares descritas em seu documento. **Faltam quatro fases funcionais, de 3 a 6**, na ordem abaixo. A próxima é corpo e sono.
+As fases 1 a 3 estão implementadas, com os fluxos principais validados no Mac e no iPhone e verificações complementares descritas nos documentos de cada fase. Restam **três fases funcionais, de 4 a 6**, na ordem abaixo.
 
-Após concluir essas quatro fases, aplicar um **patch adicional exclusivamente visual para o iPhone**, a partir do material do Claude Design fornecido pelo usuário. O patch ajustará a apresentação mobile e sua coerência com o Mac, preservando funcionalidades, modelos, persistência e sincronização. Não iniciar esse redesenho durante as entregas funcionais.
+Após concluir a fase 6, aplicar um **patch adicional exclusivamente visual para o iPhone**, a partir do material do Claude Design fornecido pelo usuário. O patch ajustará a apresentação mobile e sua coerência com o Mac, preservando funcionalidades, modelos, persistência e sincronização. Não iniciar esse redesenho durante as entregas funcionais.
 
 O código é público. Configuração pessoal de backend e assinatura deve permanecer em `Config/Local.xcconfig`, ignorado pelo Git; instruções reproduzíveis no [README](../README.md).
 
@@ -82,7 +82,7 @@ Planejar no Mac, sincronizar com o iPhone, desligar o Mac, executar e concluir u
 
 ## Fase 3 — corpo e sono
 
-Plano detalhado em [FASE_3.md](FASE_3.md), ainda sem implementação. Ordem: modelo/migração V3 → protocolo compatível → corpo → sono → validação nos dois aparelhos. A mudança do protocolo precisa preservar instalações da fase 2 e suas filas pendentes.
+Implementação, resultados e limites em [FASE_3.md](FASE_3.md). V3, formulários compartilhados, histórico, gráficos e protocolo remoto v2 estão implementados; o backend compatível com clientes da fase 2 foi aplicado. Foram confirmados dados anteriores preservados, peso sincronizado, sono e correção recuperados offline, rascunho incompleto recuperado/cancelado, medidas do Mac recebidas juntas no iPhone e composição com método/unidades preservados. O clique nos campos do Mac foi corrigido e confirmado pelo usuário. A correção corporal final chegou ao servidor e ao Mac no mesmo registro, com os mesmos IDs de métricas, sem duplicatas, fila pendente ou conflitos. A persistência offline foi confirmada pelo usuário; a fila ainda offline não foi capturada na inspeção. Os 54 testes do Mac passaram. Dynamic Type e VoiceOver no aparelho permanecem como verificações complementares. O usuário autorizou a publicação no GitHub após o teste conjunto.
 
 ### Entregas
 

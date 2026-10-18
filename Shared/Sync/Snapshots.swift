@@ -109,6 +109,7 @@ nonisolated struct SessionSnapshot: Codable {
         for e in try context.fetch(FetchDescriptor<Exercise>()) { result.append((.exercise, e.id, try SnapshotCodec.encode(exercise(e)))) }
         for w in try context.fetch(FetchDescriptor<WorkoutTemplate>()) { result.append((.workout, w.id, try SnapshotCodec.encode(workout(w)))) }
         for s in try context.fetch(FetchDescriptor<WorkoutSession>()) { result.append((.session, s.id, try SnapshotCodec.encode(session(s)))) }
+        result += try ProgressSnapshots.all(in: context)
         return result.sorted { a, b in
             let kinds = EntityKind.allCases
             let ai = kinds.firstIndex(of: a.0)!, bi = kinds.firstIndex(of: b.0)!
@@ -117,6 +118,9 @@ nonisolated struct SessionSnapshot: Codable {
     }
 
     static func apply(kind: EntityKind, id: UUID, payload: Data?, in c: ModelContext) throws {
+        if [.bodyProfile, .bodyRecord, .sleep].contains(kind) {
+            try ProgressSnapshots.apply(kind: kind, id: id, payload: payload, in: c); return
+        }
         guard let payload else {
             switch kind {
             case .program:
@@ -129,6 +133,7 @@ nonisolated struct SessionSnapshot: Codable {
                 if let w = try c.fetch(FetchDescriptor<WorkoutTemplate>()).first(where: { $0.id == id }) { c.delete(w) }
             case .session:
                 if let s = try c.fetch(FetchDescriptor<WorkoutSession>()).first(where: { $0.id == id }) { c.delete(s) }
+            default: throw SyncFailure.invalidResponse
             }
             return
         }
@@ -210,6 +215,7 @@ nonisolated struct SessionSnapshot: Codable {
                     }
                 }
             }
+        default: throw SyncFailure.invalidResponse
         }
     }
 }

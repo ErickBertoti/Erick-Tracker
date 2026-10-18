@@ -61,6 +61,8 @@ struct TrackerCommands: Commands {
             Button("Início") { actions?.navigate(.home) }.keyboardShortcut("1").disabled(actions == nil)
             Button("Treinos") { actions?.navigate(.workouts) }.keyboardShortcut("2").disabled(actions == nil)
             Button("Exercícios") { actions?.navigate(.exercises) }.keyboardShortcut("3").disabled(actions == nil)
+            Button("Progresso") { actions?.navigate(.progress) }.keyboardShortcut("4").disabled(actions == nil)
+            Button("Histórico") { actions?.navigate(.history) }.keyboardShortcut("5").disabled(actions == nil)
         }
     }
 }

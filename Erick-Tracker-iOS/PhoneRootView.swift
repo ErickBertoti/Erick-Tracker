@@ -63,6 +63,9 @@ struct PhoneRootView: View {
             Tab("Histórico", systemImage: "clock.arrow.circlepath") {
                 SessionHistoryView { openSession = $0 }
             }
+            Tab("Progresso", systemImage: "chart.xyaxis.line") {
+                NavigationStack { ProgressRootView(store: store) }
+            }
             Tab("Ajustes", systemImage: "gearshape") {
                 NavigationStack { PhoneSettingsView(app: app, activity: activity) }
             }

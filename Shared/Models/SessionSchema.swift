@@ -3,7 +3,13 @@ import SwiftData
 
 nonisolated enum SessionStatus: String, Codable { case inProgress, paused, completed, cancelled }
 nonisolated enum LoggedSetStatus: String, Codable { case pending, completed, skipped }
-nonisolated enum EntityKind: String, Codable, CaseIterable { case program, exercise, workout, session }
+nonisolated enum EntityKind: String, Codable, CaseIterable {
+    case program, exercise, workout, session, bodyProfile, bodyRecord, sleep, unknown
+    init(from decoder: Decoder) throws {
+        let value = try decoder.singleValueContainer().decode(String.self)
+        self = Self(rawValue: value) ?? .unknown
+    }
+}
 
 enum TrackerSchemaV2: VersionedSchema {
     static var versionIdentifier: Schema.Version { .init(2, 0, 0) }
@@ -184,6 +190,4 @@ typealias ExerciseLog = TrackerSchemaV2.ExerciseLog
 typealias SetLog = TrackerSchemaV2.SetLog
 typealias SetLogSegment = TrackerSchemaV2.SetLogSegment
 typealias SyncRecord = TrackerSchemaV2.SyncRecord
-typealias PendingMutation = TrackerSchemaV2.PendingMutation
-typealias SyncConflict = TrackerSchemaV2.SyncConflict
 typealias SyncCursor = TrackerSchemaV2.SyncCursor

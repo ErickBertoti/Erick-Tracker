@@ -26,12 +26,15 @@ nonisolated enum JSONValue: Codable, Sendable, Equatable {
     }
 }
 nonisolated struct MutationRequest: Codable, Sendable {
-    var protocolVersion = 1
+    var protocolVersion = 2
     var mutationID: UUID; var kind: EntityKind; var entityID: UUID
     var baseRevision: Int64; var payload: JSONValue?; var deleted: Bool
 }
 nonisolated struct MutationReply: Codable, Sendable {
     var status: String; var revision: Int64; var payload: JSONValue?; var deleted: Bool
+    var competingEntityID: UUID?
+    var competingRevision: Int64?
+    var competingPayload: JSONValue?
 }
 nonisolated struct RemoteChange: Codable, Sendable {
     var revision: Int64; var kind: EntityKind; var entityID: UUID; var payload: JSONValue?; var deleted: Bool
@@ -116,21 +119,31 @@ nonisolated struct RemoteChange: Codable, Sendable {
         case .exercise: mutation.payload == nil ? 5 : 1
         case .workout: 2
         case .session: 3
-        case nil: 6
+        case .bodyProfile: 0
+        case .bodyRecord, .sleep: mutation.payload == nil ? 5 : 3
+        case .unknown, nil: 6
         }
     }
     private func send(_ mutation: PendingMutation, blocked: inout Set<String>) async throws {
         guard let record = try record(for: mutation.recordKey),
               let kind = EntityKind(rawValue: mutation.kindRaw) else { throw SyncFailure.invalidResponse }
         mutation.hasBeenSent = true; try context.save()
-        let request = MutationRequest(mutationID: mutation.id, kind: kind, entityID: mutation.entityID,
+        let request = MutationRequest(protocolVersion: mutation.protocolVersion, mutationID: mutation.id, kind: kind, entityID: mutation.entityID,
             baseRevision: mutation.baseRevision,
             payload: try mutation.payload.map { try SnapshotCodec.decode(JSONValue.self, from: $0) },
             deleted: mutation.payload == nil)
         let reply = try await transport.apply(request)
         guard enabled, !Task.isCancelled else { return }
         let remote = try canonical(reply.payload, kind: kind)
-        if reply.status == "conflict" {
+        if reply.status == "duplicateNight" {
+            guard kind == .sleep, let id = reply.competingEntityID, let revision = reply.competingRevision,
+                  let other = try canonical(reply.competingPayload, kind: .sleep) else { throw SyncFailure.invalidResponse }
+            let conflict = try conflict(record, payload: remote, revision: reply.revision)
+            conflict.reasonRaw = "duplicateNight"; conflict.competingID = id
+            conflict.competingPayload = other; conflict.competingRevision = revision
+            try receiveCompetingNight(id: id, payload: other, revision: revision)
+            blocked.insert(record.key)
+        } else if reply.status == "conflict" {
             blocked.insert(record.key)
             try conflict(record, payload: remote, revision: reply.revision)
         } else {
@@ -148,12 +161,14 @@ nonisolated struct RemoteChange: Codable, Sendable {
         try context.save()
     }
     private func receiveChanges() async throws {
-    let cursor = try context.fetch(FetchDescriptor<SyncCursor>()).first ?? SyncCursor()
+    let cursor = try context.fetch(FetchDescriptor<SyncCursor>()).first { $0.key == "changes-v2" } ?? SyncCursor()
+    cursor.key = "changes-v2"
     if cursor.modelContext == nil { context.insert(cursor) }
     while enabled {
         let changes = try await transport.pull(after: cursor.revision, limit: 100)
         guard enabled, !Task.isCancelled else { return }
         for change in changes {
+            guard change.kind != .unknown else { throw SyncFailure.invalidResponse }
             let key = "\(change.kind.rawValue):\(change.entityID.uuidString.lowercased())"
             let payload = try canonical(change.payload, kind: change.kind)
             let r = try record(for: key) ?? SyncRecord(kind: change.kind, entityID: change.entityID, payload: nil)
@@ -221,10 +236,14 @@ nonisolated struct RemoteChange: Codable, Sendable {
     private func record(for key: String) throws -> SyncRecord? {
         try context.fetch(FetchDescriptor<SyncRecord>()).first { $0.key == key }
     }
-    private func conflict(_ record: SyncRecord, payload: Data?, revision: Int64) throws {
+    @discardableResult private func conflict(_ record: SyncRecord, payload: Data?, revision: Int64) throws -> SyncConflict {
         if let existing = try context.fetch(FetchDescriptor<SyncConflict>()).first(where: { $0.recordKey == record.key }) {
             existing.localPayload = record.localPayload; existing.remotePayload = payload; existing.remoteRevision = revision
-        } else { context.insert(SyncConflict(record: record, remotePayload: payload, revision: revision)) }
+            return existing
+        } else {
+            let item = SyncConflict(record: record, remotePayload: payload, revision: revision)
+            context.insert(item); return item
+        }
     }
     private func canonical(_ value: JSONValue?, kind: EntityKind) throws -> Data? {
         guard let value, value != .null else { return nil }
@@ -234,18 +253,35 @@ nonisolated struct RemoteChange: Codable, Sendable {
         case .exercise: return try SnapshotCodec.encode(SnapshotCodec.decode(ExerciseSnapshot.self, from: bytes))
         case .workout: return try SnapshotCodec.encode(SnapshotCodec.decode(WorkoutSnapshot.self, from: bytes))
         case .session: return try SnapshotCodec.encode(SnapshotCodec.decode(SessionSnapshot.self, from: bytes))
+        case .bodyProfile:
+            let p = try SnapshotCodec.decode(BodyProfileSnapshot.self, from: bytes); try ProgressValidation.profile(p)
+            return try SnapshotCodec.encode(p)
+        case .bodyRecord:
+            let p = try SnapshotCodec.decode(BodyRecordSnapshot.self, from: bytes); try ProgressValidation.body(p)
+            return try SnapshotCodec.encode(p)
+        case .sleep:
+            let p = try SnapshotCodec.decode(SleepSnapshot.self, from: bytes); try ProgressValidation.sleep(p)
+            return try SnapshotCodec.encode(p)
+        case .unknown: throw SyncFailure.invalidResponse
         }
     }
     enum Resolution { case local, remote, both, archiveExercise }
     func resolve(_ conflict: SyncConflict, choosing choice: Resolution) {
         do {
             guard let kind = EntityKind(rawValue: conflict.kindRaw), let r = try record(for: conflict.recordKey) else { return }
+            if conflict.reasonRaw == "duplicateNight" { try resolveDuplicateNight(conflict, record: r, choice: choice); return }
             if choice == .remote, kind == .exercise, conflict.remotePayload == nil,
                let exercise = try context.fetch(FetchDescriptor<Exercise>()).first(where: { $0.id == r.entityID }),
                !exercise.items.isEmpty { throw SyncFailure.exerciseReferenced }
             let local = r.localPayload
             var copy: WorkoutSnapshot?
-            if choice == .both || (choice == .local && conflict.remotePayload == nil && kind == .workout) {
+            var bodyCopy: BodyRecordSnapshot?
+            if kind == .bodyRecord, let local,
+               choice == .both || (choice == .local && conflict.remotePayload == nil) {
+                var d = try SnapshotCodec.decode(BodyRecordSnapshot.self, from: local)
+                d.id = UUID(); d.createdAt = .now; d.updatedAt = .now
+                for i in d.values.indices { d.values[i].id = UUID() }; bodyCopy = d
+            } else if choice == .both || (choice == .local && conflict.remotePayload == nil && kind == .workout) {
                 guard kind == .workout, let local else { return }
                 var d = try SnapshotCodec.decode(WorkoutSnapshot.self, from: local)
                 d.id = UUID(); d.name += " (cópia local)"; d.createdAt = .now; d.updatedAt = .now
@@ -258,7 +294,7 @@ nonisolated struct RemoteChange: Codable, Sendable {
             }
             for p in try context.fetch(FetchDescriptor<PendingMutation>()) where p.recordKey == r.key { context.delete(p) }
             r.serverRevision = conflict.remoteRevision; r.syncedPayload = conflict.remotePayload
-            if choice == .remote || copy != nil {
+            if choice == .remote || copy != nil || bodyCopy != nil {
                 try Snapshots.apply(kind: kind, id: r.entityID, payload: conflict.remotePayload, in: context)
                 r.localPayload = conflict.remotePayload; r.isDeleted = r.localPayload == nil
             } else {
@@ -271,19 +307,75 @@ nonisolated struct RemoteChange: Codable, Sendable {
                 context.insert(PendingMutation(record: r))
             }
             if let copy { try Snapshots.apply(kind: .workout, id: copy.id, payload: SnapshotCodec.encode(copy), in: context) }
-            context.delete(conflict); try context.save()
-            if copy != nil { store.save() }
+            if let bodyCopy { try Snapshots.apply(kind: .bodyRecord, id: bodyCopy.id, payload: SnapshotCodec.encode(bodyCopy), in: context) }
+            context.delete(conflict)
+            guard store.save() else { throw SyncFailure.saveFailed }
             schedule()
         } catch { context.rollback(); store.operationError = error.localizedDescription }
     }
+
+    private func receiveCompetingNight(id: UUID, payload: Data, revision: Int64) throws {
+        let key = "sleep:\(id.uuidString.lowercased())"
+        let r = try record(for: key) ?? SyncRecord(kind: .sleep, entityID: id, payload: nil)
+        if r.modelContext == nil { context.insert(r) }
+        guard revision > r.serverRevision else { return }
+        let dirty = try queued().contains { $0.recordKey == key }
+        if dirty && r.localPayload != payload { try conflict(r, payload: payload, revision: revision); return }
+        try Snapshots.apply(kind: .sleep, id: id, payload: payload, in: context)
+        r.localPayload = payload; r.syncedPayload = payload; r.serverRevision = revision; r.isDeleted = false
+    }
+
+    private func resolveDuplicateNight(_ conflict: SyncConflict, record r: SyncRecord, choice: Resolution) throws {
+        guard let otherID = conflict.competingID, let otherData = conflict.competingPayload,
+              let otherRevision = conflict.competingRevision else { throw SyncFailure.invalidResponse }
+        let other = try SnapshotCodec.decode(SleepSnapshot.self, from: otherData)
+        guard choice == .local || choice == .remote else { return }
+        let local = r.localPayload
+        for p in try queued() where p.recordKey == r.key { context.delete(p) }
+        r.serverRevision = conflict.remoteRevision; r.syncedPayload = conflict.remotePayload
+        if choice == .remote {
+            try Snapshots.apply(kind: .sleep, id: r.entityID, payload: conflict.remotePayload, in: context)
+            r.localPayload = conflict.remotePayload; r.isDeleted = r.localPayload == nil
+        } else if let local {
+            var d = try SnapshotCodec.decode(SleepSnapshot.self, from: local)
+            if d.wakeDate != other.wakeDate {
+                context.insert(PendingMutation(record: r)) // User corrected the date in Progresso.
+            } else {
+                let key = "sleep:\(otherID.uuidString.lowercased())"
+                let competing = try record(for: key) ?? SyncRecord(kind: .sleep, entityID: otherID, payload: otherData)
+                if competing.modelContext == nil { context.insert(competing) }
+                guard !(try queued().contains { $0.recordKey == key && $0.hasBeenSent }),
+                      !(try context.fetch(FetchDescriptor<SyncConflict>()).contains { $0.recordKey == key }) else {
+                    throw ProgressFailure.pendingConflict
+                }
+                for p in try queued() where p.recordKey == key { context.delete(p) }
+                d.id = otherID; d.createdAt = other.createdAt; d.updatedAt = .now
+                let data = try SnapshotCodec.encode(d)
+                try Snapshots.apply(kind: .sleep, id: otherID, payload: data, in: context)
+                competing.serverRevision = otherRevision; competing.syncedPayload = otherData
+                competing.localPayload = data; competing.isDeleted = false
+                context.insert(PendingMutation(record: competing))
+                try Snapshots.apply(kind: .sleep, id: r.entityID, payload: nil, in: context)
+                r.localPayload = nil; r.isDeleted = true
+                if r.serverRevision > 0 { context.insert(PendingMutation(record: r)) }
+            }
+        } else {
+            r.localPayload = nil; r.isDeleted = true
+            if r.serverRevision > 0 { context.insert(PendingMutation(record: r)) }
+        }
+        context.delete(conflict)
+        guard store.save() else { throw SyncFailure.saveFailed }
+        schedule()
+    }
 }
 nonisolated enum SyncFailure: LocalizedError {
-    case invalidResponse, deletedRemotely, exerciseReferenced
+    case invalidResponse, deletedRemotely, exerciseReferenced, saveFailed
     var errorDescription: String? {
         switch self {
         case .invalidResponse: "O servidor respondeu em um formato incompatível. Atualize o aplicativo e tente novamente."
         case .deletedRemotely: "Este cadastro foi excluído na nuvem. Use a versão da nuvem e crie um novo cadastro para preservar a exclusão."
         case .exerciseReferenced: "Este exercício ainda está em modelos locais. Resolva primeiro os conflitos desses treinos ou substitua o exercício antes de aceitar a exclusão."
+        case .saveFailed: "Não foi possível salvar a resolução. As versões continuam preservadas; tente novamente."
         }
     }
 }
